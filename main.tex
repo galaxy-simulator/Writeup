@@ -1,0 +1,463 @@
+\documentclass[a4paper, 10pt]{article}
+\usepackage[top=2cm, bottom=2cm, left=1.5cm, right=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+%\usepackage[english]{babel}
+\usepackage[german]{babel}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{multicol}
+\usepackage{lipsum}
+
+\usepackage{listings}
+\usepackage{listings-golang}
+
+\lstset{
+    frame=single,
+    language=golang,
+}
+
+\linespread{1}
+
+\newcommand{\rarrow}{\( \rightarrow \)}
+
+\begin{document}
+
+\title{\huge Galaxy Simulation\\ \large Jugend Forscht 2018/2019}
+\date{2018 - 2019}
+\author{Emile Hansmaennel}%\\ Theodor-Fliedner-Gymnasium, Heinrich Heine
+%Universität Düsseldorf}
+
+\maketitle
+
+\begin{multicols*}{2}[
+\abstract{
+    \parbox{0.85\textwidth}{
+    \centering
+             \parbox{0.6\textwidth}{
+             \centering
+             \bigskip
+                Ist es möglich die Entstehung von Galaxien zu simulieren?  Um
+diese Frage zu beantworten bin ich zu dem Schluss gekommen, dass ich das doch
+einfach mal ausprobieren sollte. Dazu habe ich das Navarro-Frenk-White Profil
+implementiert um anschließen die Kräfte die Zwischen den Sternen wirken zu
+berechnen. Dabei stattete ich die Sterne mit einer zufälligen Masse aus und
+Unterteilte die Galaxie in dynamisch-große Zellen um die Simulation stark zu
+beschleunigen.  Um eine Stabile Galaxie zu simulieren müssen jedoch alle Sterne
+in der Galaxie eine Anfangsgeschwindigkeit besitzen die sie auf eine Kreisbahn
+lenkt, damit die Kraft, welche die Sterne in die Mitte der Galaxie zieht
+ausgeglichen werden.
+             \bigskip
+             }
+    }
+} 
+]
+
+\renewcommand{\contentsname}{Inhaltsverzeichnis} \tableofcontents[Inhalt]
+
+\section{Einleitung}
+Das Projekt ist nach meinem vorletzten Jugend-Forscht Projekt entstanden: Ich
+habe ein Praktikum in Astronomischen Recheninstitut in Heidelberg genutzt, um
+mit einem Doktoranden\footnote{Tim Tugendhat} das Navarro-Frenk-White Profil,
+das zum generien von Punktwolken genutzt wird, zu visualizieren. Anschließend
+hat sich das Projekt ein bisschen verlaufen, irgendwann beschloss ich jedoch,
+dass das Projekt weiterzuführen und statt nur statische Galaxien zu generieren
+dazu überzugehen die Galaxien zu simulieren, also die Entwicklung einer
+virtuellen Galaxie zu untersuchen.  Eines der Entscheidenden Probleme war die
+Laufzeit der Simulation. Das Problem das es zu lösen galt, war die nutzung von
+mehreren Threads mit der nutzung des Barnes-Hut Algorithmus zu kombinieren.
+Das Ergebniss ist sehr schön: Durch die nutzung der Programmiersprache Golang
+war das einbauen der nutzung von mehreren Threads vergleichsweise einfach.
+
+\section{Vorgehensweise}
+
+Wie schon in der Einleitung beschrieben habe ich mehrere Techniken kombiniert
+um mein Ziel zu erreichen. Das komplette Projekt lässt sich in mehrere
+Abschnitte unterteilen: Die Generierung der Punktwolke, aus der eine Galaxie
+abstrahiert wird.  Die Simulation der Galaxie bei der die Kräfte die in der
+Galaxie wirken berechnet werden und daraus die Geschwindigkeit und Richtung in
+die der Stern fliegt.
+
+\section{Generieren}
+
+Das Generieren der Statischen Punktwolke aus der die Galaxie abstrahiert wird
+ist ein wichtiger Bestandteil des Gesamtprojektes, denn alles baut auf ihr auf.
+Kurz: um Kräfte zwischen Sternen zu berechnen braucht man erstmal Sterne!
+
+\subsection{Das Navarro-Frenk-White Profil}
+Das Navarro-Frenk-White Profil (NFW-profil) ist ein Profil zur Generierung von
+Koordinaten in n-Dimensionalen Systemen. Das Profil gibt einem die
+Warscheinlichkeit \( \rho \) zurück, dass ein Punkt im Abstand \( r \) zum
+Mittelpunkt des raumes existiert.  Die dazugehörige Funktion sieht wiefolgt
+aus:
+
+\begin{equation} \label{eq:NFW_profile}
+  \rho_{NFW}(r) = \frac{ 1 }{ \sqrt{ 2 \pi } \cdot \sigma } \cdot
+  \exp \left( \frac{ -\phi(r) }{ \sigma^{ 2 } } \right)
+\end{equation}
+
+\begin{equation*}
+  \phi(r) = \frac{ 4\pi \cdot G \cdot f_{0} \cdot R_{s}^3 }{ r } \cdot
+  ln{ \left( 1 + \frac{ r }{ R_{s} } \right) }
+\end{equation*}
+
+Möchte man nun herausfinden wie weit ein Punkt mit der Koordinate \( (x_1, x_2,
+... , x_n) \) mit \( x \in \mathbb{N} \) vom Mittelpunkt des Raumes entfernt
+ist, kann der Satz des Pythagoras (\ref{eq:pythagoras}) verwendet werden.
+
+\begin{equation} \label{eq:pythagoras}
+r_n = \sqrt{\sum_{i=0}^{n} x_i^2} \qquad n \in \mathbb{N}
+\end{equation}
+
+Der Abstand \( r \) zum Mittelpunkt des Raumes kann nun in das NFW-Profil
+\ref{eq:NFW_profile} gegeben werden wodurch ein Wert \( s \) entstehet:
+
+\begin{equation}
+\rho_{NFW}(r) = \dots = s
+\end{equation}
+
+Dieser Wert \( s \) stellt die Warscheinlichkeit dar, das ein Stern der
+eine Entfernung \( r \) vom Mittelpunkt der Galaxie besitzt existiert.
+
+Die Galaxie Wirkt nun aus der Ferne wie ein Würfel, da die aus \( \rho \)
+retultierende Kurve aprubt endet. Dies kann gelöst werden, indem statt \(
+\rho_{NFW}(r) \) folgendes gerechnet wird: \( \rho_{NFW}(r) -
+\rho_{NFW}(r_{max}) \) 
+
+\subsection{Random Sampling}
+Sei \( s \) ein zufälliger Wert im Intervall \( \psi = [ \rho(r_{min}); \rho(r_{max}) ]
+\).  Generiert man nun einen zufälligen Wert \( r \) im Intervall \( \psi \),
+kann man schauen ob \( s > r \lor s < r \) gilt. Ist \( r > s \), wird der Stern verworfen,
+ist \( r < s \) wird der Stern behalten.
+
+\subsection{Lookup Tabellen}
+Statt bei der generierung eines Punktes jedes mal das NFW-Profil
+(\ref{eq:NFW_profile}) anzuwenden, kann das NFW-Profil für einen Bereich
+vorberechnet werden und in einer Tabelle abgespeichert werden. Somit kann wenn
+eine Entfernung \( r \) zum Mittelpunkt des Raumes vorliegt der entsprechende
+Wert aus der Tabelle ausgelesen werden.  Die Tabelle kann jedoch nicht so
+genaue Ergebnisse liefern wie das NFW-Profil, sie kann jedoch so angepasst
+werden, dass sie in den Arbeisspeicher passt und somit das Generieren stark
+verschnellert. Mit genügend Arbeitsspeicher ist der Fehler auch
+vernachlässigbar.
+
+\subsection{Beschleunigung der Generierung}
+Es existieren mehere Möglichkeiten das Generierung der Punkte zu verschnellern.
+
+Eine gute Möglichkeit ist die Nutzung von mehr Rechenleistung.  Bei der Nutzung
+von \( n \) Rechenkernen ist das Generieren von Sternen \( n \) mal schneller.
+Die Server des Server-Hosters Hetzner können dabei gut verwendet werden:
+Es wird stündlich aberechnet und 32 Kerne mit 128 GB RAM kosten \( \approx \)
+50ct / h was es ermöglicht für einen vergleichsweisen Günstigen Preis, sehr
+viele Koordinates zu generieren.
+
+Die Ausgabe von jeder Potentiellen Koordinate in die Kommandozeile verlangsamt
+die Generierung unglaublich stark, da der Rechner darauf wartet das die Ausgabe
+fertig ist bevor er mit der nächsten rechnung beginnt was zu einer relativ
+starken verlangsamung der Generierung führt.
+
+\section{Simulieren}
+
+\subsection{Die Entstehung von Galaxien}
+``Eine Galaxie ist eine durch gravitation gebundene große Ansammlung von
+Sternen, Planetensystemen, Gasnebeln und sonstigen Stellaren Objekten.``
+\footnote{ https://de.wikipedia.org/wiki/Galaxie}
+
+Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden einfach
+ganz viele Objekte in einen Raum geworfen. Das reicht jedoch nicht um die
+Objekte als Galaxie definieren zu können, da sie nicht ``durch Gravitation
+gebunden`` sind.
+
+Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie berechnet
+werden und damit die Position des Objektes nach einer bestimmten Zeit bestimmt
+werden.
+
+Dies reicht jedoch auch nicht um eine ``stabile`` Galaxie zu generieren:
+berechnet man nur die Kräfte die auf ruhende Objete in einem Reibungfreiem Raum
+wirken, würden alle Objekte zum Massemittelpunkt gezugen werden und die Galaxie
+würde somit implodieren. Es ist also nötig auf die Sterne in der Galaxie
+anfangskräfte auszuwirken.  Diese Kräfte sind durch die Rotation der Galaxie um
+den Massemittelpunkt der Galaxie definiert, man rotiert also die Galaxie und
+gleicht dadurch die Kraft die Alle Sterne richtung Massemittelpunkt zieht aus.
+Rotiert man die Galaxie jedoch zu schnell, explodiert sie Förmlich, da die
+Sterne nicht mehr zusammengehalten werden und die Fliehkraft sie einfach
+auseinanderzieht.
+
+\subsection{Berechnung der Beschleunigungen}
+Um die Beschleunigung die auf einen Stern wirk zu berechnen wird folgendes
+berechnet:
+
+\begin{equation} \label{eq:beschleunigung}
+    a = G \cdot \frac{\Delta{M_2}}{\Delta{r}^2}
+\end{equation}
+
+\( G \) steht hier fúr die Universellt Gravitaionskraft, \( \Delta M \) für die
+Masse des Objektes das Umkresit wird und \( \Delta r \) für die Entfernung zum
+Mittelpunkt des Objektes das umkreist wird.
+Problem ist, dass kein Objekt umkreist wird sondern eine große Anzahl an Sternen.
+Es ist also nich möglich mithilfe von herkömmlichen Methoden die Beschleunigung
+die auf einen Stern wirkt zu berechnen.
+
+\subsubsection{Die Kraft als Vektor}
+Um die Kraft als Vektor darkzustellen, muss die Formel \ref{eq:beschleunigung}
+mithilfe von Vektoren neu aufgestellt werden:
+
+\begin{equation} \vec{F}_{12} = \underbrace{-G \frac{m_1 m_2}{|r_{12}|^2}}_{Scalar}
+\cdot \underbrace{\frac{r_2 - r_1}{|r_2 - r_1|}}_{Vector} \end{equation}
+
+Die Summe der Kräfte die auf einen Stern wirken ist somit die Summe aller
+Kräfte die zwischen dem jeweiligen Stern \( a \) und allen anderen Sternen
+wirken:
+
+\begin{equation} F_{a} = \sum_{i=0}^{n-1} F_{ai} \end{equation}
+
+\subsubsection{Probleme}
+Ein Problem das auftritt wenn die Kräfte zwischen allen Sternen berechnet
+werden ist, dass der Rechenaufwand \( O(n \cdot n-1) \approx O(n^2) \) beträgt.
+Problematisch wird es, wenn der mittlere Fehler, der bei der Berechnung der
+Kraft entsteht, größer als die Kraft wird. Das passier bei Sternen die sehr
+weit von einander entfernt liegen.  Statt weiterzurechnen kann man die Sterne
+dann einfach weglassen, da die Daten unzuverlässig sin.
+
+Die Lösung des Problems ist die verwendung des Barnes-Hut Algorithmuses, der
+duch die Unterteilung der Galaxie in verschiden große Zellen die
+Rechenkomplexität von \( O(n^2) \) auf \( O(n \log(n) \) runterbricht:
+
+\subsubsection{Berechnung der Umlaufgeschwindigkeit}
+Die Umlaufgeschwindigket kann berechnet werden, indem die Kraft die die Sterne
+in die Mitte der Galaxie zieht \( \left( F = G \cdot \frac{m \cdot M}{r^2}
+\right) \) mit der Zentripetalkraft \( \left( F_z = \frac{m \cdot v^2}{r}
+\right)\) gleichgesetzt wird:
+
+\begin{equation}
+v = \sqrt{\frac{G \cdot M_E}{r}}
+\end{equation}
+
+\( M_E \) steht dabei für die Masse der Erde, \( G \) für die
+Gravitaitonskonstante und \( r \) für den Bahnradius.  Da wir jedoch nicht in
+der Erdumlaufbahn, sondern in einer Galaxienumlaufbahn hantieren, können wir
+nicht die Masse der Erde nutzen. Wir müssen daher eine andere Möglichkeit
+nutzen, die größe der Masse, die den Stern in Richtung Massemittelpunkt zieht zu
+berechnen.
+
+\subsubsection{Ellipsen und die Geschwindigkeit der Sterne}
+Da die Sterne nicht auf perfekten Kreisbahnen um den Mittelpunkt der Galaxie
+fliegen muss in betracht gezogen werden wie die Sterne auf Elliptischen Bahnen
+orbitieren.  Wichtigt ist dabei die Geschwindigkeit, diese muss zwischen der
+ersten Kosmischen Geschwindigkeit \( v_k \) und der zweiten Kosmischen
+Geschwindigkeit \( v_P \) liegen. Die beiden Kosmischen Geschwindigkeiten sind
+folgendermaßen definiert:
+
+\begin{equation}
+v_{k1} = \sqrt{\frac{GM}{r}}
+\end{equation}
+\begin{equation}
+v_{k2} = \sqrt{\frac{2GM}{r}}
+\end{equation}
+
+Die Tatsache das die Sterne auf Elliptischen Bahnen unterwegs sind ist für die
+Berechnung irrelevant, da eh für jeden Zeitschritt \( t \) eine neue Kraft
+berechnet wird aus der eine Beschleunigung berechnet wird die wiederum die neue
+Position des Sternes ergibt.  Hält man die Geschwindigkeit der Sterne somit im
+interval \( (v_{k1} ; v_{k2}) \), dann ergibt sich (in der Therorie) von
+alleine eine elliptische Bahn.
+
+\subsection{Entwicklung der nötigen Software}
+Die Software ist komplett in Golang geschrieben was die nutzung von mehreren
+Threads mithilfe von Go-Methoden stark vereinfacht.  Um den Barnes-Hut
+Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
+Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
+solange unterteilt, bis eine der drei Endbedingungen eintrifft: \begin{itemize}
+	\item Die Zelle enthält weniger als eine vordefinierte mindestmenge an
+		Sternen \item Die Zelle ist kleiner als eine vordefinierte
+mindestgröße \item Es wurde eine maximale Anzahl an Unterteilungen vorgenommen
+\end{itemize} Ein wichtiger Aspekt ist jedoch auch, dass die Zellen rekursiv
+generiert werden. Kurzgesagt, die 'kinder'-Zellen dürfen müssen aus der
+Koordinates der 'Eltern'-Zellen generiert werden. Ist eine die übergeordnete
+Zell beispielweise definiert durch ihren Mittelpunkt \( m \)  und die Maximale
+Breite \( b \) des Feldes, kann die Position der jeweiligen untergeordneten Zelle
+folgendermaßen berechnet werden:
+
+
+\begin{equation}
+	NW = \left( m \pm \frac{b}{2}, m \pm \frac{b}{2} \right)
+\end{equation}
+
+
+\bigskip
+
+\begin{center}
+\begin{tikzpicture}
+	% First Layer
+	\draw [line width=0.5mm] (0, 0) rectangle (6, 6);
+
+	% Second Layer 
+	\draw [line width=0.25mm] (0, 0) rectangle (3, 3);
+        \draw [line width=0.25mm] (3, 0) rectangle (6, 3) node[pos=0.5] { \( \delta \) };
+        \draw [line width=0.25mm] (0, 3) rectangle (3, 6) node[pos=0.5] { \( \alpha \) };
+        \draw [line width=0.25mm] (3, 3) rectangle (6, 6) node[pos=0.5] { \( \beta \) };
+
+	% Third Layer
+	\draw [line width=0.125mm] (0, 0) rectangle (1.5, 1.5) node[pos=0.5] { \( \gamma \gamma \) };
+	\draw [line width=0.125mm] (1.5, 0) rectangle (3, 1.5) node[pos=0.5] { \( \gamma \delta \) };
+	\draw [line width=0.125mm] (0, 1.5) rectangle (1.5, 3) node[pos=0.5] { \( \gamma \alpha \) };
+	\draw [line width=0.125mm] (1.5, 1.5) rectangle (3, 3) node[pos=0.5] { \( \gamma \beta \) };
+\end{tikzpicture}
+\end{center}
+
+Nehmen wir als Beispiel das Feld \( \gamma \beta \).
+
+\subsubsection{Barnes-Hut-simulation}
+Wie bereits beschrieben wird die Galaxie in Zellen unterteilt. Dabei kann, wenn
+eine Zelle weit genug von einem spezifischen Stern entfernt ist, die Zelle zu
+ihrem Massemittelpunkt vereinfacht werden. Der Massemittelpunkt kann wiefolgt
+berechnet werden:
+
+\begin{equation}
+\left( \frac{ \sum_{i=0}^{n} x_i \cdot m_i }{ \sum_{i=0}^{n} m},
+\frac{ \sum_{i=0}^{n} y_i \cdot m_i }{ \sum_{i=0}^{n} m } \right)
+\end{equation}
+
+Dabei wird die mithilfe ihrer Masse gewichtete Summe der Sterne durch die
+gesamt Masse geteilt um die geweilige Coordinaten-komponente zu erhalten.  Dies
+muss für jede Zelle einmal getan werden und in der jeweiligen Zellen-struktur
+gespeichert werden wodurch am Ende jede Zelle die Koordinaten ihres
+Massemittelpunktes kennt.
+
+Der Barnes-Hut-Algorithmus verringert die Anzahl zu berechnenden Kräfte durch
+geeignetes Zusammenfassen von Teilchengruppen zu Pseudoteilchen
+\footnote{https://de.wikipedia.org/wiki/Barnes-Hut-Algorithmus}. 
+
+Der um eine Abschätzung zu bekommen, wie gut es ist, die Sterne zu bündeln,
+muss darauf geachtet werden, das das Verhältnis vom Gruppendurchmesser \( d \)
+zum Radius \( r \) möglichst gering ist:
+
+\begin{equation} \label{theta} \theta = \frac{d}{r} \end{equation}
+
+Die Datenstruktur die einen Barnes-Hut Baum speichert ist am besten wiefolgt
+definiert:
+
+\subsubsection{Datentypen}
+Um generell irgendwas zu tun muss in fast allen fällen etwas definiert werden.
+Zur Simulation von Galaxien brauchen wir voallem eine Methode, Sterne
+einheitlich zu definieren. Der unten definierte Vec2-typ kann einen Vektor oder
+eine Koordinate darstellen was ihn in der Anwendung zu einem praktischen
+Hilfsmittel macht.  Er speichert die X und Y Komponente der jeweiligen Struktur
+die er darstellen soll als float64-typ. 
+
+\begin{lstlisting}
+type Vec2 struct {
+        X               float64 
+        Y               float64 
+}
+\end{lstlisting}
+
+Mithilfe des Vec2-typens kann ein Kompletter Stern definiert werden. Dabei wird
+ein Stern mithilfe seine Position \( C \), seiner Geschwindigkeit \( V \), und
+seiner Masse \( M \) beschrieben. 
+
+\begin{lstlisting}
+type Star2D struct {
+        C               Vec2 
+        V               Vec2 
+        Mass            float64
+}
+\end{lstlisting}
+
+Um einen sogennanten quadtree bzw. octree aufzubauen wird erstmal eine
+Räumliche Begrenzung benötigt, die einem Raum beschriebt indem die Sterne
+enthalten sind oder nicht.  Diese grenze ist als `Boundary` definiert, es wird
+dabei der Mittelpunkt der Begrenzung und die kürzeste Entfernung zwischen
+mittelpunkt und äußerer Begrenzung genutzt um den Raum zu definieren.
+
+\begin{lstlisting}
+type Boundary struct {
+        Center          Vec2 
+        HalfDimension   float64 
+}
+\end{lstlisting}
+
+Der eigentliche QuadTree bzw. Octree beinhaltet einige Informationen: Die
+Anzahl in ihm enthaltene Sterne, die Räumliche ausbreitung, die eigentlichen
+Sterne als Star2D definiert und die RecursionTiefe als integer.  Die Definition
+des QuadTrees der Unten zu sehen ist enthält Zeiger zu den Kindern des
+Quadtrees und ist somit rekusriv definiert was es einfach macht neue Kinder zu
+erstellen, da diese eine Kopie ihere Eltern mit einer anderen Begrenzung
+darstellen wodurch die in ihnen enthaltenen Sterne weniger werden.
+
+\begin{lstlisting}
+type QuadTree struct {
+        StarCount       int 
+        Boundary        Boundary 
+        Star            []Vec2 
+
+        NorthWest       *QuadTree
+        NorthEast       *QuadTree
+        SouthWest       *QuadTree
+        SouthEast       *QuadTree
+
+        ReccursionDepth int
+}
+\end{lstlisting}
+
+\paragraph{Idee:}
+Wenn man bei herrausfinden welcher Stern in welcher Zelle liegt jedem Stern
+eine Zellen-id zuweist, kann man wenn man die Kraft zwischen zwei sehr weit
+entfernten Sternen berechnen will direkt dazu übergehen, die Kraft zum
+Massemittelpunkt der Zelle indem der weit eintferne Stern liegt zu berechnen.
+
+\subsubsection{Runge-Kutta methods}
+Die Runge-Kutta Methode wird genutzt, um die Position eines objektes nach einer
+Beliebigen Zeit zu approximieren. Dabei kann, bei nutzung eines mglich kleinen
+Zeitschrittes, ein sehr genaues Ergebniss erzielt werden.  In unserem Fall
+haben wir einen Stern auf den eine Kraft wirkt. Wir wollen die Position des
+Sternens nach einem Zeitschritt berechnen, jedoch auch eine andere Kraft
+miteinbringen um die Sterne auf eine Ellipische Bahn um die Mitte der Galaxie
+zu bringen.
+Die Geschwindigkeit die der Stern dabei annnimmt kann mit der fogenden Formel
+berechnet werden:
+
+\begin{equation}
+    v = \sqrt{ar}
+\end{equation}
+
+\subsubsection{Goroutines}
+Die nutzung von mehreren sogennanten Go-Methoden ist unglaublich effektiv, da
+es die Zeit die gebraucht wird das Programm auszuführen drastisch verringert.
+Die implementation ist ebenfalls unglaublich einfach, es recht
+
+\section{Ergebnisse}
+Wie bewertest Du Deine Ergebnisse? Wie passt das zu dem, was Du über Dein Thema
+gelesen oder gehört hast? Was ist gut gelaufen im Projekt, was war schlecht,
+was könnte noch verbessert werden?  Das simulieren von Galaxien ist komplett
+ohne optimierungen ein sehr rechenaufwendiger prozess, weshalb einer der
+wichtigsten aspekte des Projektes war, die effizienz zu erhöhen.
+
+\subsection{Das n-Körper Problem}
+Das N-Körper Problem ist blöd (aber notwendig D:) (Und es ermöglicht das ganze
+erst!)
+
+\subsection{Beschleunigung der Berechnung von Kräften}
+\( n^2 \rightarrow n \cdot log(n) \) 
+iasd
+
+\subsection{Fazit}
+Welche Antwort kannst Du auf Deine Forschungsfrage geben? Hast Du Dein Ziel
+erreicht?  Langsam, Ok, schneller, Schnell, Hyperspeed!
+
+
+\section{Quellen und Literaturverzeichnis}
+
+THE INTERNET!
+
+\end{multicols*}
+
+\end{document}
+
