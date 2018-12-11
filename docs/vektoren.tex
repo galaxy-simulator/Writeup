@@ -1,0 +1,14 @@
+\section{Vektoren}
+
+Die Kräfte die auf die jeweiligen Sterne wirken werden mithilfe von Vektoren
+dargestellt.  Hierbei ist es sinnvoll eine einheitliche Vektor-länge zu
+definieren, welche die Richtung der wirkenden Kraft beschreibt. Die Stärke der
+Kraft als Gradient definiert, der von blau (schwach) nach rot (stark) verläuft.
+Um die Farbe entsprechend der Kraft darzustellen wird die Stärke der wirkenden
+Kraft duch eine Sigmoidfunktion geschoben und das Ergebnis in wiefolgt
+verwenden: RGB(val, 0, 1-val).
+
+\begin{equation}
+f(x) = \frac{L}{1 + e^{-k(x-x_0)}}
+\end{equation}
+

@@ -1,0 +1,345 @@
+\section{Simulieren}
+
+\subsection{Die Entstehung von Galaxien}
+``Eine Galaxie ist eine durch gravitation gebundene große Ansammlung von
+Sternen, Planetensystemen, Gasnebeln und sonstigen Stellaren Objekten.``
+\footnote{\url{https://de.wikipedia.org/wiki/Galaxie}}
+
+Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden einfach
+ganz viele Objekte in einen Raum geworfen. Das reicht jedoch nicht um die
+Objekte als Galaxie definieren zu können, da sie nicht ``durch Gravitation
+gebunden`` sind.
+
+Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie berechnet
+werden um damit die Position der jeweiligen Objekte nach einer bestimmten Zeit
+bestimmen zu können.
+
+Dies reicht jedoch auch nicht um eine ``stabile`` Galaxie zu generieren:
+berechnet man nur die Kräfte die auf ruhende Objekte in einem Reibungsfreiem Raum
+wirken, würden alle Objekte zum Massenmittelpunkt gezogen werden und die Galaxie
+würde somit implodieren. Es ist also nötig auf die Sterne in der Galaxie
+Anfangs Kräfte zu wirken.  Diese Kräfte sind durch die Rotation der Galaxie um
+den Massenmittelpunkt der Galaxie definiert, man rotiert also die Galaxie und
+gleicht durch die Zentripetalkraft, die Kraft die Alle Sterne Richtung
+Massenmittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu schnell,
+explodiert sie Förmlich, da die Sterne nicht mehr zusammengehalten werden und
+die Fliehkraft sie einfach auseinanderzieht.
+
+\subsection{Berechnung der Beschleunigungen}
+Um die Beschleunigung die auf einen Stern wirkt zu berechnen wird folgendes
+berechnet:
+
+\begin{equation} \label{eq:beschleunigung}
+    a = G \cdot \frac{\Delta{M_2}}{\Delta{r}^2}
+\end{equation}
+
+\( G \) steht hier für die Universelle Gravitationskraft, \( \Delta M \) für die
+Masse des Objektes das Umkreist wird und \( \Delta r \) für die Entfernung zum
+Mittelpunkt des Objektes das umkreist wird.
+Problem ist, dass kein Objekt umkreist wird sondern eine große Anzahl an Sternen.
+Es ist also nicht möglich mithilfe von herkömmlichen Methoden die Beschleunigung
+die auf einen Stern wirkt zu berechnen.
+
+TODO: und jetzt?
+
+\subsubsection{Die Kraft als Vektor}
+Um die Kraft als Vektor darzustellen, muss die Formel \ref{eq:beschleunigung}
+mithilfe von Vektoren wiefolgt neu aufgestellt werden:
+
+\begin{equation} \vec{F}_{12} = \underbrace{-G \frac{m_1 m_2}{|r_{12}|^2}}_{Scalar}
+\cdot \underbrace{\frac{r_2 - r_1}{|r_2 - r_1|}}_{Vector} \end{equation}
+
+Die Summe der Kräfte die auf einen Stern wirken ist somit die Summe aller
+Kräfte die zwischen dem jeweiligen Stern \( a \) und allen anderen Sternen
+wirken:
+
+\begin{equation} F_{a} = \sum_{i=0}^{n-1} F_{ai} \end{equation}
+
+\subsubsection{Berechnung der Umlaufgeschwindigkeit}
+Die Umlaufgeschwindigkeit kann berechnet werden, indem die Kraft die die Sterne
+in die Mitte der Galaxie zieht \( \left( F = G \cdot \frac{m \cdot M}{r^2}
+\right) \) mit der Zentripetalkraft \( \left( F_z = \frac{m \cdot v^2}{r}
+\right)\) gleichgesetzt wird:
+
+\begin{equation}
+v = \sqrt{\frac{G \cdot M_E}{r}}
+\end{equation}
+
+\( M_E \) steht dabei für die Masse der Erde, \( G \) für die
+Gravitationskonstante und \( r \) für den Bahn Radius.  Da wir jedoch nicht in
+der Erdumlaufbahn, sondern in einer Galaxien Umlaufbahn hantieren, können wir
+nicht die Masse der Erde nutzen. Wir müssen daher eine andere Möglichkeit
+nutzen, die Größe der Masse, die den Stern in Richtung Massenmittelpunkt zieht zu
+berechnen.
+
+\subsubsection{Ellipsen und die Geschwindigkeit der Sterne}
+Da die Sterne nicht auf perfekten Kreisbahnen um den Mittelpunkt der Galaxie
+fliegen muss in betracht gezogen werden wie die Sterne auf Elliptischen Bahnen
+orbitieren.  Wichtigt ist dabei die Geschwindigkeit, diese muss zwischen der
+ersten Kosmischen Geschwindigkeit \( v_k \) und der zweiten Kosmischen
+Geschwindigkeit \( v_P \) liegen. Die beiden Kosmischen Geschwindigkeiten sind
+folgendermaßen definiert:
+
+\begin{equation}
+v_{k1} = \sqrt{\frac{GM}{r}}
+\end{equation}
+\begin{equation}
+v_{k2} = \sqrt{\frac{2GM}{r}}
+\end{equation}
+
+Die Tatsache das die Sterne auf Elliptischen Bahnen unterwegs sind ist für die
+Berechnung irrelevant, da eh für jeden Zeitschritt \( t \) eine neue Kraft
+berechnet wird aus der eine Beschleunigung berechnet wird die wiederum die neue
+Position des Sternes ergibt.  Hält man die Geschwindigkeit der Sterne somit im
+interval \( (v_{k1} ; v_{k2}) \), dann ergibt sich (in der Therorie) von
+alleine eine elliptische Bahn.
+
+\subsection{Entwicklung der nötigen Software}
+Die Software ist komplett in Golang geschrieben was die nutzung von mehreren
+Threads mithilfe von Go-Methoden stark vereinfacht. Um den Barnes-Hut
+Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
+Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
+solange unterteilt, bis eine der drei Endbedingungen eintrifft.
+
+\subsubsection{Zu lösende Probleme}
+Ein Problem das auftritt wenn die Kräfte zwischen allen Sternen berechnet
+werden ist, dass der Rechenaufwand \( O(n \cdot n-1) \approx O(n^2) \) beträgt.
+
+Es kommt zu Problemen, wen nder mittlere Fehler, der bei der Berchnung der Kraft
+entsteht größer als die wirkende Kraft wird. Dies passiert unter anderem dann,
+wenn der Abstand zwischen den Sternen so groß wird, das die wirkende Kraft so gering ist
+das sie mithilfe von Computern nichtmehr sinvoll dargestellt wird.
+Statt nun mit Rundungsfehlen zu rechnen, können diese Sterne, die sehr weit enfrent vom
+Stern dessen kräfte berechnet werden sollen, einfach nicht mehr beachtet werden,
+da sie nicht sinvoll beitragen.
+Um dieses Problem zu lösen wird der Barnes-Hut Algorithmus verwenden. Dieser Algorithmus
+unterteil einen Bereich in variabel große Zellen und mindert die Laufzeit von \( O(n^2) \) auf
+\( O(n \log(n) \).
+
+\subsubsection{Generierung von Quadtrees und die nutzung des Barnes-Hut
+Algorithmus\footnote{http://arborjs.org/docs/barnes-hut}}
+
+
+\begin{equation}
+    NW = \left( m \pm \frac{b}{2}, m \pm \frac{b}{2} \right)
+\end{equation}
+
+
+\bigskip
+
+\begin{minipage}{0.45\textwidth}
+\begin{tikzpicture}[level 1/.style={level distance=1.5cm}]
+    % First Layer
+    \draw [line width=0.5mm] (0, 0) rectangle (6, 6);
+
+    % Second Layer 
+    \draw [line width=0.25mm] (0, 0) rectangle (3, 3);
+    \draw [line width=0.25mm] (3, 0) rectangle (6, 3);
+    \draw [line width=0.25mm] (0, 3) rectangle (3, 6);
+    \draw [line width=0.25mm] (3, 3) rectangle (6, 6);
+
+    % Third Layer (South West)
+    \draw [line width=0.125mm] (0, 0) rectangle (1.5, 1.5);
+    \draw [line width=0.125mm] (1.5, 1.5) rectangle (3, 3);
+
+    % Third Layer (North East)
+    \draw [line width=0.125mm] (3, 3) rectangle (4.5, 4.5);
+    \draw [line width=0.125mm] (4.5, 4.5) rectangle (6, 6);
+
+    % Forth Layer (North West)
+    \draw [line width=0.125mm] (3, 4.5) rectangle (3.75, 5.25);
+    \draw [line width=0.125mm] (3.75, 5.25) rectangle (4.5, 6);
+
+    % Draw the nodes
+    \node at (1, 4.5) {$A$};
+    \node at (4, 5.5) {$B$};
+    \node at (3.5, 5) {$C$};
+    \node at (5, 4) {$D$};
+    \node at (2.75, 2.75) {$E$};
+    \node at (0.75, 0.75) {$F$};
+    \node at (2, 0.75) {$G$};
+    \node at (3.5, 0.75) {$H$};
+\end{tikzpicture}
+\end{minipage}
+
+\begin{forest}
+    for tree={circle,draw, s sep+=0.25em}
+    [
+        [A]
+        [
+            [
+                []
+                [B]
+                [C]
+                []
+            ]
+            []
+            []
+            [D]
+        ]
+        [
+            []
+            [E]
+            [F]
+            [G]
+        ]
+        [H]
+    ]
+\end{forest}
+
+Um die Kraft die auf einen bestimmten Stern wirkt zu berechnen, wird der Baum
+von der Wurzel aus nach unten durchlaufen.  Beispiel: Berechnung der Kraft die
+auf den Stern A wirkt. Der 'Quadtree' wird von oben nach unten durchgegangen,
+also wird das Verhältnis zwischen der Entfernung des Massemittelpunktes zu dem
+Stern A (\(\approx 42\)) und der Breite der jeweiligen Zelle (100) berechnet
+(Formel \ref{eq:barnes_hut}): \( \frac{100}{43} \not> \theta = 0.5\).
+
+\begin{equation} \label{eq:barnes_hut} \theta = \frac{d}{r} \end{equation}
+
+Ist das Verhältnis größer als ein im vorhinein definierter Grenzwert \( \theta
+\), dann wird weiter in den Quadtree ineingegangen und eine Ebene tiefer
+rekursiv weitergeprüft.
+
+Die Koordinate des Massemittelpunktes \( \varsigma \) des jeweiligen Knotens
+kann wie in Formel (\ref{eq:mean_mass}) beschrieben berechnet werden:
+
+\begin{equation} \label{eq:mean_mass}
+\varsigma = \left( \dfrac{ \displaystyle \sum_{i=0}^{n} x_i \cdot m_i }{
+\displaystyle \sum_{i=0}^{n} m_i } , \frac{ \displaystyle \sum_{i=0}^{n} y_i
+\cdot m_i }{ \displaystyle \sum_{i=0}^{n} m_i } \right)
+\end{equation}
+
+Es ist somit durch \( \theta \) eine Endbedingung gegeben, welche verhindert
+das zu weit in den Baum vorgedrungen wird und somit auch verhindert, dass
+Sterne die in einer zu großen Entfernung zu dem ursprungssten liegen und dicht
+genug grupiert sind zusammengefasst werden.
+
+\subsubsection{Implementierung des Quadtrees}
+Um generell irgendwas zu tun muss in fast allen fällen etwas definiert werden.
+Zur Simulation von Galaxien brauchen wir vor allem eine Methode, Sterne
+einheitlich zu definieren. Der unten definierte Vec2-typ kann einen Vektor oder
+eine Koordinate darstellen was ihn in der Anwendung zu einem praktischen
+Hilfsmittel macht.  Er speichert die X und Y Komponente der jeweiligen Struktur
+die er darstellen soll als float64-typ.
+
+\begin{lstlisting}
+type Vec struct {
+        X               float64
+        Y               float64
+        Z               float64
+}
+
+method (Vec2) insert() {...}
+method (Vec2) insideOf() bool {...}
+func newVec2() Vec2 {...}
+\end{lstlisting}
+
+Mithilfe des Vec2-typens kann ein Kompletter Stern definiert werden. Dabei wird
+ein Stern mithilfe seine Position \( C \), seiner Geschwindigkeit \( V \), und
+seiner Masse \( M \) beschrieben.
+
+\begin{lstlisting}
+type Star struct {
+        C               Vec
+        V               Vec
+        Mass            float64
+}
+
+method (Vec2) insideOf() bool {...}
+\end{lstlisting}
+
+Um einen sogennanten quadtree bzw. octree aufzubauen wird erstmal eine
+Räumliche Begrenzung benötigt, die einem Raum beschriebt indem die Sterne
+enthalten sind oder nicht.  Diese grenze ist als `Boundary` definiert, es wird
+dabei der Mittelpunkt der Begrenzung und die kürzeste Entfernung zwischen
+mittelpunkt und äußerer Begrenzung genutzt um den Raum zu definieren.
+
+\begin{lstlisting}
+type Boundary struct {
+        Center          Vec
+        HalfDimension   float64
+}
+
+function newBoundary() {...}
+\end{lstlisting}
+
+Der eigentliche QuadTree bzw. Octree beinhaltet einige Informationen: Die
+Anzahl in ihm enthaltene Sterne, die Räumliche ausbreitung, die eigentlichen
+Sterne als Star2D definiert und die RecursionTiefe als integer.  Die Definition
+des QuadTrees der Unten zu sehen ist enthält Zeiger zu den Kindern des
+Quadtrees und ist somit rekusriv definiert was es einfach macht neue Kinder zu
+erstellen, da diese eine Kopie ihere Eltern mit einer anderen Begrenzung
+darstellen wodurch die in ihnen enthaltenen Sterne weniger werden.
+
+\begin{lstlisting}
+type QuadTree struct {
+        StarCount       int
+        Boundary        Boundary
+        Star            []Vec2
+
+        NorthWest       *QuadTree
+        NorthEast       *QuadTree
+        SouthWest       *QuadTree
+        SouthEast       *QuadTree
+
+        ReccursionDepth int
+}
+method (QuadTree) insert(Star) bool {...}
+method (QuadTree) subdivide() {...}
+\end{lstlisting}
+
+\subsubsection{Benchmarking}
+
+Um den Geschwindigkeitsvorteil darzustellen, kann die Kraft zwischen \(n\)
+homogen verteilten Sternen berechnet werden. Einmal mit der Brute-Force Methode
+und einmal mit der im Barnes-Hut Algorithmus beschriebenen Methode.
+
+%\begin{figure*}[ht!]
+%\centering
+%\begin{tabular*} {l | l | l | l || l}
+%    left bound & right bound & step & amount of stars & time \\
+%    -5e5 & 5e5 & 5e3 & 40003 & 1m25 \\
+%\end{tabular*}
+%\end{figure*}
+
+\subsubsection{Runge-Kutta methods}
+Die Runge-Kutta Methode wird genutzt, um die Position eines objektes nach einer
+Beliebigen Zeit zu approximieren. Dabei kann, bei nutzung eines mglich kleinen
+Zeitschrittes, ein sehr genaues Ergebniss erzielt werden.  In unserem Fall
+haben wir einen Stern auf den eine Kraft wirkt. Wir wollen die Position des
+Sternens nach einem Zeitschritt berechnen, jedoch auch eine andere Kraft
+miteinbringen um die Sterne auf eine Ellipische Bahn um die Mitte der Galaxie
+zu bringen.
+Die Geschwindigkeit die der Stern dabei annnimmt kann mit der fogenden Formel
+berechnet werden:
+
+\begin{equation}
+    v = \sqrt{ar}
+\end{equation}
+
+\subsubsection{Goroutines}
+Die Nutzung von mehreren sogennanten Go-Methoden ist unglaublich effektiv, da
+es die Zeit die gebraucht wird das Programm auszuführen drastisch verringert.
+Die implementation ist ebenfalls unglaublich einfach, es recht
+
+\subsection{Netwerkfoo}
+
+Damit das Projekt so gut wie möglich skalliert, wird die Anwendung in mehrere
+kleine Dienste aufgeteilt die jeweils eine funktion übernehmen und
+untereinander kommunizieren.  Dabei läuft jede Anwendung in einem eigenen
+Kontainer (siehe \ref{subsubsec:Docker}) und kann somit in falle eines
+nadelöhrs mehrfach gestartet werden und über einen reverse-http-proxy (siehe
+\ref{subsubsec:Traefik}) mit daten versorgt werden.
+
+\subsubsection{Die verschiedenen Dienste}
+Um die Generierung der Punktwolken und die anschließende Simulation der Wolke
+in einzelne Microservices aufzuspalten muss erstmal definiert werden für welche
+Dienste es überhaupt sinn macht sie in einzelne instanzen abhängig bzw.
+unabhängig von einander agieren.
+
+\subsubsection{Docker} \label{subsubsec:Docker}
+\subsubsection{Docker-compose}
+\subsubsection{Traefik} \label{subsubsec:Traefik}
+\subsubsection{Kubernetes / Docker swarm}
+\subsubsection{grafana}
+
