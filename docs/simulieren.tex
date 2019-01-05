@@ -1,7 +1,7 @@
 \section{Simulieren}
 
 \subsection{Die Entstehung von Galaxien}
-``Eine Galaxie ist eine durch gravitation gebundene große Ansammlung von
+``Eine Galaxie ist eine durch Gravitation gebundene große Ansammlung von
 Sternen, Planetensystemen, Gasnebeln und sonstigen Stellaren Objekten.``
 \footnote{\url{https://de.wikipedia.org/wiki/Galaxie}}
 
@@ -91,42 +91,51 @@ Die Tatsache das die Sterne auf Elliptischen Bahnen unterwegs sind ist für die
 Berechnung irrelevant, da eh für jeden Zeitschritt \( t \) eine neue Kraft
 berechnet wird aus der eine Beschleunigung berechnet wird die wiederum die neue
 Position des Sternes ergibt.  Hält man die Geschwindigkeit der Sterne somit im
-interval \( (v_{k1} ; v_{k2}) \), dann ergibt sich (in der Therorie) von
+Intervall \( (v_{k1} ; v_{k2}) \), dann ergibt sich (in der Theorie) von
 alleine eine elliptische Bahn.
 
 \subsection{Entwicklung der nötigen Software}
-Die Software ist komplett in Golang geschrieben was die nutzung von mehreren
+Die Software ist komplett in Golang geschrieben was die Nutzung von mehreren
 Threads mithilfe von Go-Methoden stark vereinfacht. Um den Barnes-Hut
 Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
 Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
-solange unterteilt, bis eine der drei Endbedingungen eintrifft.
+solange unterteilt, bis eine der drei End Bedingungen eintrifft.
 
 \subsubsection{Zu lösende Probleme}
 Ein Problem das auftritt wenn die Kräfte zwischen allen Sternen berechnet
 werden ist, dass der Rechenaufwand \( O(n \cdot n-1) \approx O(n^2) \) beträgt.
 
-Es kommt zu Problemen, wen nder mittlere Fehler, der bei der Berchnung der Kraft
+Es kommt zu Problemen, wenn der mittlere Fehler, der bei der Berechnung der Kraft
 entsteht größer als die wirkende Kraft wird. Dies passiert unter anderem dann,
 wenn der Abstand zwischen den Sternen so groß wird, das die wirkende Kraft so gering ist
-das sie mithilfe von Computern nichtmehr sinvoll dargestellt wird.
-Statt nun mit Rundungsfehlen zu rechnen, können diese Sterne, die sehr weit enfrent vom
-Stern dessen kräfte berechnet werden sollen, einfach nicht mehr beachtet werden,
-da sie nicht sinvoll beitragen.
+das sie mithilfe von Computern nicht mehr sinnvoll dargestellt wird.
+Statt nun mit Rundungsfehlern zu rechnen, können diese Sterne, die sehr weit entfernt vom
+Stern dessen Kräfte berechnet werden sollen, einfach nicht mehr beachtet werden,
+da sie nicht sinnvoll beitragen.
 Um dieses Problem zu lösen wird der Barnes-Hut Algorithmus verwenden. Dieser Algorithmus
-unterteil einen Bereich in variabel große Zellen und mindert die Laufzeit von \( O(n^2) \) auf
+unterteilt einen Bereich in variabel große Zellen und mindert die Laufzeit von \( O(n^2) \) auf
 \( O(n \log(n) \).
 
-\subsubsection{Generierung von Quadtrees und die nutzung des Barnes-Hut
-Algorithmus\footnote{http://arborjs.org/docs/barnes-hut}}
+\subsubsection{Generierung von Quadtrees und die Nutzung des Barnes-Hut
+Algorithmus}
 
+Um nun einen Quadtree (einen k-nären Baum mit jeweils vier Kindern) zu
+generieren die die komplette Galaxie umfasst, muss erstmal definiert werden wie
+groß die Galaxie überhaupt ist. Dazu werden, falls bereits Sterne vorliegen,
+die jeweiligen Extrempunkte (minimales x, minimales y, maximales x und
+maximales y) bestimmt und die Wurzel Zelle mithilfe diese Werte entsprechend
+skaliert.  Falls jedoch noch nicht bekannt ist wie groß die Galaxie sein wird,
+muss abgeschätzt werden wir groß sie werden könnte, d.h.: es wird bei der
+Generierung geschaut in was für einem Bereich die Sterne Generiert werden. 
 
 \begin{equation}
-    NW = \left( m \pm \frac{b}{2}, m \pm \frac{b}{2} \right)
+    \text{Wurzel Knoten} = (0, 0), \text{Breite}=b
 \end{equation}
-
 
 \bigskip
 
+\begin{figure}
+\hspace{1.5cm}
 \begin{minipage}{0.45\textwidth}
 \begin{tikzpicture}[level 1/.style={level distance=1.5cm}]
     % First Layer
@@ -161,7 +170,11 @@ Algorithmus\footnote{http://arborjs.org/docs/barnes-hut}}
     \node at (3.5, 0.75) {$H$};
 \end{tikzpicture}
 \end{minipage}
+\caption{Unterteilung einer Galaxie in verschiedene Zellen}
+\label{fig:cells}
+\end{figure}
 
+\begin{figure}
 \begin{forest}
     for tree={circle,draw, s sep+=0.25em}
     [
@@ -186,6 +199,9 @@ Algorithmus\footnote{http://arborjs.org/docs/barnes-hut}}
         [H]
     ]
 \end{forest}
+\caption{Die in Abbildung \ref{fig:cells} dargestellte Galaxie als Baum
+dargestellt}
+\end{figure}
 
 Um die Kraft die auf einen bestimmten Stern wirkt zu berechnen, wird der Baum
 von der Wurzel aus nach unten durchlaufen.  Beispiel: Berechnung der Kraft die
@@ -200,7 +216,123 @@ Ist das Verhältnis größer als ein im vorhinein definierter Grenzwert \( \thet
 \), dann wird weiter in den Quadtree ineingegangen und eine Ebene tiefer
 rekursiv weitergeprüft.
 
-Die Koordinate des Massemittelpunktes \( \varsigma \) des jeweiligen Knotens
+Hierbei ist es wichtig, dass die Sterne richtig in den Baum eingefügt wurden,
+d.h.: Die eigentlichen Sterne müssen in den Blättern liegen. Um dies zu
+erreichen, müssen die Sterne beim einfügen immer in der Blätter verschoben
+werden.
+
+\begin{figure}
+\subfigure[Anfangszustand. Der Stern B soll in den Baum, indem sich bereits A befindet, eingefügt werden.]{
+    \begin{forest}
+        for tree={circle,draw, s sep+=0.25em}
+        [,phantom
+            [B]
+            [
+                A
+                []
+                []
+                []
+            ]
+        ]
+    \end{forest}
+}
+\quad
+\subfigure[Stern B kann nicht eingefügt werden, da der Slot durch A belegt ist, also wird A weiter in den Baum versickert.]{
+    \begin{forest}
+        for tree={circle,draw, s sep+=0.25em}
+        [,phantom
+            [B]
+            [
+                [A
+                    []
+                    []
+                    []
+                ]
+                []
+                []
+            ]
+        ]
+    \end{forest}
+}
+\quad
+\subfigure[B wird nun eingefügt, da sich B jedoch nicht in einem Blatt befinden, muss B weiter versickert werden.]{
+    \begin{forest}
+        for tree={circle,draw, s sep+=0.25em}
+        [,phantom
+            [B
+                [A
+                    []
+                    []
+                    []
+                ]
+                []
+                []
+            ]
+        ]
+    \end{forest}\quad\\[2ex]
+}
+\quad
+\subfigure[Damit B versickert werden kann, wird der Platz der durch A besetzt wird freigemacht, indem A weiter versickert wird.]{
+    \begin{forest}
+        for tree={circle,draw, s sep+=0.25em}
+         [B
+             [
+                 [A
+                     []
+                     []
+                     []
+                 ]
+                 []
+                 [
+                     []
+                     []
+                     []
+                 ]
+             ]
+             []
+             []
+         ]
+    \end{forest}\quad
+}
+\quad
+\subfigure[B kann jetzt in den Baum versickert werden und ist nun ein Blatt.]{
+    \begin{forest}
+        for tree={circle,draw, s sep+=0.25em}
+         [
+             [
+                 [A
+                     []
+                     []
+                     []
+                 ]
+                 []
+                 [B
+                     []
+                     []
+                     []
+                 ]
+             ]
+             []
+             []
+         ]
+    \end{forest}\quad
+}
+
+\caption{Schrittweises einfügen des Sternes B in einen Baum, indem sich bereits ein Stern (A) befindet.} \label{fig:insertwithexisting}
+\end{figure}
+
+\begin{lstlisting}
+if node.hasstar() {
+
+}
+\end{lstlisting}
+
+Wie in Abbildung \ref{fig:insertwithexisting} zu sehen ist, wird erst der
+bereits existierende Stern weiter in den Baum versickert, der Stern welcher
+eingefügt werden soll wird danach ebenfalls in den Baum Versickert bis er sich
+in einem der Blätter befindet.
+
+Die Koordinate des Massenmittelpunktes \( \varsigma \) des jeweiligen Knotens
 kann wie in Formel (\ref{eq:mean_mass}) beschrieben berechnet werden:
 
 \begin{equation} \label{eq:mean_mass}
@@ -209,7 +341,7 @@ kann wie in Formel (\ref{eq:mean_mass}) beschrieben berechnet werden:
 \cdot m_i }{ \displaystyle \sum_{i=0}^{n} m_i } \right)
 \end{equation}
 
-Es ist somit durch \( \theta \) eine Endbedingung gegeben, welche verhindert
+Es ist somit durch \( \theta \) eine End Bedingung gegeben, welche verhindert
 das zu weit in den Baum vorgedrungen wird und somit auch verhindert, dass
 Sterne die in einer zu großen Entfernung zu dem ursprungssten liegen und dicht
 genug grupiert sind zusammengefasst werden.
@@ -264,11 +396,11 @@ function newBoundary() {...}
 \end{lstlisting}
 
 Der eigentliche QuadTree bzw. Octree beinhaltet einige Informationen: Die
-Anzahl in ihm enthaltene Sterne, die Räumliche ausbreitung, die eigentlichen
-Sterne als Star2D definiert und die RecursionTiefe als integer.  Die Definition
-des QuadTrees der Unten zu sehen ist enthält Zeiger zu den Kindern des
-Quadtrees und ist somit rekusriv definiert was es einfach macht neue Kinder zu
-erstellen, da diese eine Kopie ihere Eltern mit einer anderen Begrenzung
+Anzahl in ihm enthaltene Sterne, die Räumliche Ausbereitung, die eigentlichen
+Sterne als Star2D definiert und die Rekursionstiefe als integer. Die Definition
+des Quadtrees der Unten zu sehen ist enthält Zeiger zu den Kindern des
+Quadtrees und ist somit rekursiv definiert was es einfach macht neue Kinder zu
+erstellen, da diese eine Kopie ihre Eltern mit einer anderen Begrenzung
 darstellen wodurch die in ihnen enthaltenen Sterne weniger werden.
 
 \begin{lstlisting}
@@ -290,56 +422,65 @@ method (QuadTree) subdivide() {...}
 
 \subsubsection{Benchmarking}
 
-Um den Geschwindigkeitsvorteil darzustellen, kann die Kraft zwischen \(n\)
+Um den Geschwindigkeit Vorteil darzustellen, kann die Kraft zwischen \(n\)
 homogen verteilten Sternen berechnet werden. Einmal mit der Brute-Force Methode
 und einmal mit der im Barnes-Hut Algorithmus beschriebenen Methode.
 
-%\begin{figure*}[ht!]
-%\centering
-%\begin{tabular*} {l | l | l | l || l}
-%    left bound & right bound & step & amount of stars & time \\
-%    -5e5 & 5e5 & 5e3 & 40003 & 1m25 \\
-%\end{tabular*}
-%\end{figure*}
-
-\subsubsection{Runge-Kutta methods}
-Die Runge-Kutta Methode wird genutzt, um die Position eines objektes nach einer
-Beliebigen Zeit zu approximieren. Dabei kann, bei nutzung eines mglich kleinen
-Zeitschrittes, ein sehr genaues Ergebniss erzielt werden.  In unserem Fall
+\subsubsection{Runge-Kutta Methoden}
+Die Runge-Kutta Methode wird genutzt, um die Position eines Objektes nach einer
+Beliebigen Zeit zu approximieren. Dabei kann, bei Nutzung eines möglich kleinen
+Zeit Schrittes, ein sehr genaues Ergebnis erzielt werden.  In unserem Fall
 haben wir einen Stern auf den eine Kraft wirkt. Wir wollen die Position des
-Sternens nach einem Zeitschritt berechnen, jedoch auch eine andere Kraft
-miteinbringen um die Sterne auf eine Ellipische Bahn um die Mitte der Galaxie
-zu bringen.
-Die Geschwindigkeit die der Stern dabei annnimmt kann mit der fogenden Formel
-berechnet werden:
+Sterns nach einem Zeit schritt berechnen, jedoch auch eine andere Kraft mit
+einbringen um die Sterne auf eine Elliptische Bahn um die Mitte der Galaxie zu
+bringen.  Die Geschwindigkeit die der Stern dabei annimmt kann mit der
+folgenden Formel berechnet werden:
 
 \begin{equation}
     v = \sqrt{ar}
 \end{equation}
 
 \subsubsection{Goroutines}
-Die Nutzung von mehreren sogennanten Go-Methoden ist unglaublich effektiv, da
+Die Nutzung von mehreren sogenannten Go-Methoden ist unglaublich effektiv, da
 es die Zeit die gebraucht wird das Programm auszuführen drastisch verringert.
-Die implementation ist ebenfalls unglaublich einfach, es recht
+Die Implementation ist ebenfalls unglaublich einfach, es recht
 
-\subsection{Netwerkfoo}
+\subsection{Netzwerk}
 
-Damit das Projekt so gut wie möglich skalliert, wird die Anwendung in mehrere
-kleine Dienste aufgeteilt die jeweils eine funktion übernehmen und
-untereinander kommunizieren.  Dabei läuft jede Anwendung in einem eigenen
-Kontainer (siehe \ref{subsubsec:Docker}) und kann somit in falle eines
-nadelöhrs mehrfach gestartet werden und über einen reverse-http-proxy (siehe
-\ref{subsubsec:Traefik}) mit daten versorgt werden.
+Damit das Projekt so gut wie möglich skaliert, wird die Anwendung in mehrere
+kleine Dienste aufgeteilt die jeweils eine Funktion übernehmen und
+untereinander kommunizieren. Dabei läuft jede Anwendung in einem eigenen
+Container (siehe \ref{subsubsec:Docker}) und kann somit in falle eines
+Nadelöhrs mehrfach gestartet werden und über einen Reverse-http-Proxy (siehe
+\ref{subsubsec:Traefik}) mit Daten versorgt werden.
 
 \subsubsection{Die verschiedenen Dienste}
-Um die Generierung der Punktwolken und die anschließende Simulation der Wolke
-in einzelne Microservices aufzuspalten muss erstmal definiert werden für welche
-Dienste es überhaupt sinn macht sie in einzelne instanzen abhängig bzw.
+Um die Generierung der Punkt Wolken und die anschließende Simulation der Wolke
+in einzelne Micro Services aufzuspalten muss erstmal definiert werden für welche
+Dienste es überhaupt Sinn macht sie in einzelne Instanzen abhängig bzw.
 unabhängig von einander agieren.
 
 \subsubsection{Docker} \label{subsubsec:Docker}
+\begin{quote}
+\begin{minipage}{\linewidth}
+\stepcounter{footnote}
+\renewcommand\thempfootnote{\arabic{footnote}}
+``Docker vereinfacht die Bereitstellung von Anwendungen, weil sich Container,
+die alle nötigen Pakete enthalten, leicht als Dateien transportieren und
+installieren lassen. Container gewährleisten die Trennung und Verwaltung der
+auf einem Rechner genutzten Ressourcen. Das beinhaltet laut Aussage der
+Entwickler: Code, Laufzeit Modul, System Werkzeuge, Systembibliotheken – alles
+was auf einem Rechner installiert werden kann.``~\footnote{\url{https://de.wikipedia.org/wiki/Docker_(Software)}}
+\end{minipage}
+\end{quote}
+
 \subsubsection{Docker-compose}
+Damit nicht alle Container per Hand auf jedem System gestartet werden müssen
+wird eine sogenannte Docker-compose Datei erstellt, diese ermöglicht es einem
+die komplette Docker Konfiguration in einer Datei zu bündeln und somit auch die
+jeweiligen Netzwerke einfacher zu konfigurieren.
+
 \subsubsection{Traefik} \label{subsubsec:Traefik}
-\subsubsection{Kubernetes / Docker swarm}
-\subsubsection{grafana}
+\subsubsection{Kubernetes}
+\subsubsection{Grafana}
 
