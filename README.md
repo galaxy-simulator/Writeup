@@ -7,3 +7,10 @@ Langfassung (Für Jugend Forscht)
 | Name | Link |
 | --- | --- |
 | forest | https://www.ctan.org/pkg/forest | 
+
+# Branches
+
+| Branche Name | Purpose |
+| --- | --- |
+| master | German "main" version |
+| lang-en | English version |
