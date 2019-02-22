@@ -6,12 +6,10 @@ Kurz: um Kräfte zwischen Sternen zu berechnen braucht man erstmal Sterne!
 
 \subsection{Das Navarro-Frenk-White Profil}
 Das Navarro-Frenk-White Profil (NFW-Profil) ist ein Profil das genutzt wird, um
-die Räumliche Massen Verteilung von dunkler Materie anhand von Halos die in
-N-Körper Simulationen simuliert wurden, zu generieren. Das NFW-Profil kann
-jedoch auch genutzt werden um die Massen Verteilung von Sternen darzustellen.
-Das Profil generiert für einen gegebenen Abstand \( r \) zum Mittelpunkt der
-Galaxie eine Wahrscheinlichkeit \( \rho \). Die Funktion sieht dabei wie folgt aus:
-NFW
+die Räumilche Massen Verteilung von Sternen zu definieren. Es generiert für
+einen Stern mit dem Abstand \( r \) zum Mittelpunkt der Galaxie eine
+Warscheinlichkeit \( \rho \) welche definiert wie Warscheinlich es ist das der
+Stern mit dem Abstand \( r \) generiert wird:
 
 \begin{equation} \label{eq:NFW_profile}
   \rho_{NFW}(r) = \frac{ 1 }{ \sqrt{ 2 \pi } \cdot \sigma } \cdot
@@ -24,10 +22,10 @@ NFW
 \end{equation*}
 
 Es kann nun mithilfe der Random-Sampling Methode (\ref{subsec:random_sampling})
-ermittelt werden, ob ein Stern beibehalten wird oder nicht.
+ermittelt werden, ob ein Stern beibehalten wird oder nicht.\\
 
 \par Möchte man nun herausfinden wie weit ein Punkt mit der Koordinate \(
-(x_{1}, x_{2}, x_{3} \) vom Mittelpunkt des Raumes entfernt ist, kann der Satz
+(x_{1}, x_{2}, x_{3}) \) vom Mittelpunkt des Raumes entfernt ist, kann der Satz
 des Pythagoras (\ref{eq:pythagoras}) verwendet werden.
 
 \begin{equation} \label{eq:pythagoras}
@@ -67,12 +65,18 @@ Anzahl der Sterne die in Relation zu dem Bereich in dem sie generiert werden
 sehr stark sinkt.
 
 \subsection{Random Sampling} \label{subsec:random_sampling}
+
+Um nun zu ermitteln ob ein Stern beibehalten wird oder nicht, wird die
+Random-Sampling Methode verwendet.  Diese generiert in dem gegebenen Intervall,
+welches zwischen der Minimalen und Maximalen Warscheinlichkeit welche aus dem
+NFW-Profile entnommen werden, einen zufälligen Wert.
+
 \begin{equation}\label{range:psi}
     \psi = [ \rho(r_{min}); \rho(r_{max}) ] 
 \end{equation}
 
 Sei \( s \) ein zufälliger Wert im Intervall \( \psi \).  Generiert man nun
-einen zufälligen Wert \( r \) im Intervall \( \psi \), kann man schauen ob \( s
+einen zufälligen Wert \( r \) im Intervall \( \psi \), kann überprüft werden, ob \( s
 > r \lor s < r \) gilt. Ist \( r
 > s \), wird der Stern verworfen, ist \( r < s \) wird der Stern behalten.
 
@@ -113,15 +117,15 @@ einen zufälligen Wert \( r \) im Intervall \( \psi \), kann man schauen ob \( s
     \end{tikzpicture}
 \end{center}
 
-In der obigen Abbildung ist zu sehen wir zwei zufällige Punkte \( s_1 \) und \( s_2 \)
-generiert wurden.
+In der obigen Abbildung ist zu sehen wir zwei zufällige Punkte \( s_1 \) und \(
+s_2 \) generiert wurden.
 
 Angenommen es wurde ein Stern generiert für den nach Formel
 (\ref{eq:pythagoras}) gilt: \( r = \sqrt{x_{1}^{2} + x_{2}^{2} + x_{3}^{2}} =
-\dots = r_1 \). Es wird dann ein Zufälliger Wert \( p(r_2) \) im in
+\dots = r_1 \). Es wird dann ein Zufälliger Wert \( p(r_1) \) im in
 (\ref{range:psi}) definierten Intervall generiert. Die folgenden zwei Fälle
 können dann eintreten und werden wie in (\ref{cases:random_sampling})
-abgehandelt.
+beschrieben abgehandelt.
 
 \kern-1em
 
@@ -142,12 +146,11 @@ zugeordnet wird:
 
 \begin{center}
 \begin{tabular} {l | l}
-    \( r_n \quad n \in \mathbb{N} \) & \( \rho_n \quad n \in \mathbb{N} \) \\ \hline\hline
     \( r_1 \) & \( \rho_1 \) \\ \hline
     \( r_2 \) & \( \rho_2 \) \\ \hline
     \( r_3 \) & \( \rho_3 \) \\ \hline
     \( \dots \) & \( \dots \) \\ \hline
-    \( r_n \) & \( \rho_n \) \\
+    \( r_n \quad n \in \mathbb{N} \) & \( \rho_n \quad n \in \mathbb{N} \) \\ \hline
 \end{tabular}
 \end{center}
 
@@ -155,13 +158,11 @@ Die Tabelle kann jedoch nicht so genaue Ergebnisse liefern wie das NFW-Profil,
 sie kann jedoch so angepasst werden, dass sie in den Arbeitsspeicher passt und
 somit das NFW-Profil so genau wie möglich widerspiegelt und das Generieren
 stark verbessert. Mit genügend Arbeitsspeicher ist der Fehler dann auch
-vernachlässigbar.  Ein Kritischer Faktor, der beachtet werden muss wenn
+vernachlässigbar. Ein Kritischer Faktor, der beachtet werden muss wenn
 Lookuptabellen genutzt werden, ist die Geschwindigkeit des jeweiligen
 Speichermediums. Nutzt man z.B. Eine sehr langsame Festplatte kann es mehr
 Sinne machen die jeweiligen Werte direkt zu berechnen. Dagegen ist eine
 schnelle SSD (Solid-State-Drive) um einiges schneller.
-
-TODO: Versuchsreihe.
 
 \subsection{Beschleunigung der Generierung}
 Es existieren mehrere Möglichkeiten die Generierung der Punkte zu verbessern.

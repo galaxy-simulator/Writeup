@@ -1,140 +1,233 @@
 \section{Simulieren}
 
 \subsection{Die Entstehung von Galaxien}
-``Eine Galaxie ist eine durch Gravitation gebundene große Ansammlung von
+\par ``Eine Galaxie ist eine durch Gravitation gebundene große Ansammlung von
 Sternen, Planetensystemen, Gasnebeln und sonstigen Stellaren Objekten.``
 \footnote{\url{https://de.wikipedia.org/wiki/Galaxie}}
 
-Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden einfach
+\par Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden einfach
 ganz viele Objekte in einen Raum geworfen. Das reicht jedoch nicht um die
 Objekte als Galaxie definieren zu können, da sie nicht ``durch Gravitation
 gebunden`` sind.
 
-Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie berechnet
+\par Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie berechnet
 werden um damit die Position der jeweiligen Objekte nach einer bestimmten Zeit
 bestimmen zu können.
 
-Dies reicht jedoch auch nicht um eine ``stabile`` Galaxie zu generieren:
+\par Tut man dies indem man zwischen allen Objekten die Kräfte berechnet kommt
+es zu Problemen: die Anzahl der Kraft Berechnungen die durchgeführt werden
+müssen steigen exponentiell: Die Anzahl der Kräfte die auf \(n\) Sterne wirken
+lassen sich mit der Formel \( n \cdot (n-1) \) berechnen. Für \( n=3 \) müssen
+demnach \( 6 \) Kräfte berechnet werden, für \( 100 \) Sterne dagegen \( 9900
+\) und für \( 1.000.000 \) Sterne \( \approx 9.99999 \cdot 10^{11} \). Die
+Anzahl der Kraft Berechnungen die durchgeführt werden müssen beim simulieren
+einer ''echten'' Galaxie mit \( >200 \cdot 10^6 \) Sternen ist demnach so groß,
+dass die Anzahl der Kräfte die berechnet werden müssen minimiert werden müssen
+um in einer sinnvollen Zeit an ein Ergebnis zu kommen.
+
+\par Dies reicht jedoch auch nicht um eine ``stabile`` Galaxie zu generieren:
 berechnet man nur die Kräfte die auf ruhende Objekte in einem Reibungsfreiem Raum
-wirken, würden alle Objekte zum Massenmittelpunkt gezogen werden und die Galaxie
+wirken, würden alle Objekte zum Massen Mittelpunkt gezogen werden und die Galaxie
 würde somit implodieren. Es ist also nötig auf die Sterne in der Galaxie
-Anfangs Kräfte zu wirken.  Diese Kräfte sind durch die Rotation der Galaxie um
-den Massenmittelpunkt der Galaxie definiert, man rotiert also die Galaxie und
-gleicht durch die Zentripetalkraft, die Kraft die Alle Sterne Richtung
-Massenmittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu schnell,
-explodiert sie Förmlich, da die Sterne nicht mehr zusammengehalten werden und
+Anfangs Kräfte zu wirken. Diese Kräfte sind durch die Rotation der Galaxie um
+den Massen Mittelpunkt der Galaxie definiert, man rotiert also die Galaxie und
+gleicht durch die Zentripetalkraft die Kraft die Alle Sterne Richtung
+Massen Mittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu schnell,
+explodiert sie förmlich, da die Sterne nicht mehr zusammengehalten werden und
 die Fliehkraft sie einfach auseinanderzieht.
 
-\subsection{Berechnung der Beschleunigungen}
-Um die Beschleunigung die auf einen Stern wirkt zu berechnen wird folgendes
-berechnet:
-
-\begin{equation} \label{eq:beschleunigung}
-    a = G \cdot \frac{\Delta{M_2}}{\Delta{r}^2}
-\end{equation}
-
-\( G \) steht hier für die Universelle Gravitationskraft, \( \Delta M \) für die
-Masse des Objektes das Umkreist wird und \( \Delta r \) für die Entfernung zum
-Mittelpunkt des Objektes das umkreist wird.
-Problem ist, dass kein Objekt umkreist wird sondern eine große Anzahl an Sternen.
-Es ist also nicht möglich mithilfe von herkömmlichen Methoden die Beschleunigung
-die auf einen Stern wirkt zu berechnen.
-
-TODO: und jetzt?
-
 \subsubsection{Die Kraft als Vektor}
-Um die Kraft als Vektor darzustellen, muss die Formel \ref{eq:beschleunigung}
-mithilfe von Vektoren wiefolgt neu aufgestellt werden:
+Um die Kraft als Vektor zu berechnen, welcher ein Stern B auf einen Stern A
+ausübt, wird die folgende Formel verwendet:
 
-\begin{equation} \vec{F}_{12} = \underbrace{-G \frac{m_1 m_2}{|r_{12}|^2}}_{Scalar}
-\cdot \underbrace{\frac{r_2 - r_1}{|r_2 - r_1|}}_{Vector} \end{equation}
+\begin{equation}
+    \vec{F}_{AB} = \underbrace{-G \frac{m_A m_B}{|r_{AB}|^2}}_{Scalar}
+    \cdot \underbrace{\frac{r_B - r_A}{|r_B - r_A|}}_{Vector}
+\end{equation}
 
 Die Summe der Kräfte die auf einen Stern wirken ist somit die Summe aller
 Kräfte die zwischen dem jeweiligen Stern \( a \) und allen anderen Sternen
 wirken:
 
-\begin{equation} F_{a} = \sum_{i=0}^{n-1} F_{ai} \end{equation}
-
-\subsubsection{Berechnung der Umlaufgeschwindigkeit}
-Die Umlaufgeschwindigkeit kann berechnet werden, indem die Kraft die die Sterne
-in die Mitte der Galaxie zieht \( \left( F = G \cdot \frac{m \cdot M}{r^2}
-\right) \) mit der Zentripetalkraft \( \left( F_z = \frac{m \cdot v^2}{r}
-\right)\) gleichgesetzt wird:
-
 \begin{equation}
-v = \sqrt{\frac{G \cdot M_E}{r}}
+    F_{a} = \sum_{\substack{i=0 \\ i\neq a}}^{n-1} F_{ai}
 \end{equation}
 
-\( M_E \) steht dabei für die Masse der Erde, \( G \) für die
-Gravitationskonstante und \( r \) für den Bahn Radius.  Da wir jedoch nicht in
-der Erdumlaufbahn, sondern in einer Galaxien Umlaufbahn hantieren, können wir
-nicht die Masse der Erde nutzen. Wir müssen daher eine andere Möglichkeit
-nutzen, die Größe der Masse, die den Stern in Richtung Massenmittelpunkt zieht zu
-berechnen.
-
-\subsubsection{Ellipsen und die Geschwindigkeit der Sterne}
-Da die Sterne nicht auf perfekten Kreisbahnen um den Mittelpunkt der Galaxie
-fliegen muss in betracht gezogen werden wie die Sterne auf Elliptischen Bahnen
-orbitieren.  Wichtigt ist dabei die Geschwindigkeit, diese muss zwischen der
-ersten Kosmischen Geschwindigkeit \( v_k \) und der zweiten Kosmischen
-Geschwindigkeit \( v_P \) liegen. Die beiden Kosmischen Geschwindigkeiten sind
-folgendermaßen definiert:
-
-\begin{equation}
-v_{k1} = \sqrt{\frac{GM}{r}}
-\end{equation}
-\begin{equation}
-v_{k2} = \sqrt{\frac{2GM}{r}}
-\end{equation}
-
-Die Tatsache das die Sterne auf Elliptischen Bahnen unterwegs sind ist für die
-Berechnung irrelevant, da eh für jeden Zeitschritt \( t \) eine neue Kraft
-berechnet wird aus der eine Beschleunigung berechnet wird die wiederum die neue
-Position des Sternes ergibt.  Hält man die Geschwindigkeit der Sterne somit im
-Intervall \( (v_{k1} ; v_{k2}) \), dann ergibt sich (in der Theorie) von
-alleine eine elliptische Bahn.
-
-\subsection{Entwicklung der nötigen Software}
-Die Software ist komplett in Golang geschrieben was die Nutzung von mehreren
-Threads mithilfe von Go-Methoden stark vereinfacht. Um den Barnes-Hut
-Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
-Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
-solange unterteilt, bis eine der drei End Bedingungen eintrifft.
+\subsection{Konzepte}
+%Die Software ist komplett in Golang geschrieben was die Nutzung von mehreren
+%Threads mithilfe von Go-Methoden stark vereinfacht. Um den Barnes-Hut
+%Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
+%Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
+%solange unterteilt, bis eine der drei end- Bedingungen eintrifft.
 
 \subsubsection{Zu lösende Probleme}
-Ein Problem das auftritt wenn die Kräfte zwischen allen Sternen berechnet
-werden ist, dass der Rechenaufwand \( O(n \cdot n-1) \approx O(n^2) \) beträgt.
+Wie bereits beschrieben ist eines der Probleme das Auftritt die Anzahl der
+nötigen Kraft Berechnungen wodurch der Rechenaufwand Quadratisch in Relation zu
+der Anzahl der Sterne steigt und somit in \( O(n \cdot (n - 1)) \in O(n^2) \)
+liegt.
 
-Es kommt zu Problemen, wenn der mittlere Fehler, der bei der Berechnung der Kraft
-entsteht größer als die wirkende Kraft wird. Dies passiert unter anderem dann,
-wenn der Abstand zwischen den Sternen so groß wird, das die wirkende Kraft so gering ist
-das sie mithilfe von Computern nicht mehr sinnvoll dargestellt wird.
-Statt nun mit Rundungsfehlern zu rechnen, können diese Sterne, die sehr weit entfernt vom
-Stern dessen Kräfte berechnet werden sollen, einfach nicht mehr beachtet werden,
-da sie nicht sinnvoll beitragen.
-Um dieses Problem zu lösen wird der Barnes-Hut Algorithmus verwenden. Dieser Algorithmus
-unterteilt einen Bereich in variabel große Zellen und mindert die Laufzeit von \( O(n^2) \) auf
-\( O(n \log(n) \).
+\par Es kommt zu Problemen, wenn der mittlere Fehler, der bei der Berechnung
+der Kraft entsteht größer als die wirkende Kraft wird. Dies passiert unter
+anderem dann, wenn der Abstand zwischen den Sternen so groß wird, das die
+wirkende Kraft so gering ist das sie mithilfe von Computern nicht mehr sinnvoll
+dargestellt werden kann.  Statt nun mit Rundungsfehlern zu rechnen, können
+diese Sterne, die sehr weit entfernt vom Stern dessen Kräfte berechnet werden
+sollen, einfach nicht mehr beachtet werden, da sie nicht sinnvoll beitragen. Um
+diese Sterne jedoch nicht komplett aus der Berechnung auszunehmen, können
+kleine Cluster an Sternen welche weit genug vom Stern auf den die Kräfte
+berechnet werden sollen weg sind und klein genug sind zu einem Pseudo- Stern
+zusammengefasst werden welcher durch den Masse Mittelpunkt der Sterne die er
+repräsentiert definiert ist. Das Konzept wurde 1986 von Josch Barnes und Piet Hut
+veröffentlicht und erlaubt es die Anzahl an Kräften die berechnet werden müssen
+von \( O(n^2) \) auf \( O(n log(n)) \) zu reduzieren.
 
-\subsubsection{Generierung von Quadtrees und die Nutzung des Barnes-Hut
-Algorithmus}
+\subsubsection{Generierung von Quadtrees und entsprechende Bäume}
 
-Um nun einen Quadtree (einen k-nären Baum mit jeweils vier Kindern) zu
-generieren die die komplette Galaxie umfasst, muss erstmal definiert werden wie
-groß die Galaxie überhaupt ist. Dazu werden, falls bereits Sterne vorliegen,
-die jeweiligen Extrempunkte (minimales x, minimales y, maximales x und
-maximales y) bestimmt und die Wurzel Zelle mithilfe diese Werte entsprechend
-skaliert.  Falls jedoch noch nicht bekannt ist wie groß die Galaxie sein wird,
-muss abgeschätzt werden wir groß sie werden könnte, d.h.: es wird bei der
-Generierung geschaut in was für einem Bereich die Sterne Generiert werden. 
+Um Sterne clustern zu können muss die Galaxie in der sich die Sterne befinden
+in Zellen unterteilt werden. Dazu wird ein Quadtree bzw. Octree (ein k-närer
+Baum mit 4 bzw. 8 Kindern) aufgebaut indem die Sterne eingefügt werden. Damit
+die Stern-cluster gebildet werden können müssen die Sterne sich in den Blättern
+des Baumes befinden. Die Knoten des Baumes indem sich die Sterne befinden
+dürfen somit keine weiteren Kinder besitzen.
+
+\par Ein Galaxie wie in Abbildung \ref{fig:cells} dargestellt wird demnach
+Stern für Stern in einen anfangs leeren Baum eingefügt. Die Größe der ersten
+Zelle die nach dem einfügen aller Sterne alle Sterne beinhaltet kann falls
+bekannt ist in was für einem Intervall die Koordinaten der Sterne sich befinden
+direkt genutzt werden um die Größe der Zelle zu definieren, andernfalls muss
+diese erst ermittelt werden indem die minimal und maximal Koordinaten in der
+liste an Sternen gesucht werden. Beim einfügen kann es jedoch wie in Abbildung
+\ref{fig:insertwithexisting} zu sehen zu Problemen kommen. Im falle das der
+Knoten indem ein Stern eingefügt werden soll bereits durch einen anderen Stern
+belegt ist müssen für den jeweiligen Knoten Kinder-Knoten erzeugt werden in den
+die beiden Sterne eingefügt werden müssen. Dies wird so lange fortgeführt bis
+sich alle Knoten in den Blättern des Baums befinden.
+
+\par Eine Zelle ist durch ihren Mittelpunkt und ihrer Breite definiert, daher
+verschiebt sich eine Zelle welche sich eine Ebene ''tiefer'' befinden um ein
+viertel ihre Breite und die Breite der neuen Zelle ist im Relation zu der
+Ursprünglichen Zelle gesehen halbiert.
+
+\par Nachdem alle Sterne in einen Baum eingefügt wurden und sich in den
+Blättern des Baumes befinden, wird der Baum rekursiv durchlaufen und es wird
+für jeden inneren Knoten (Knoten welche keine Blätter sind) die gesamt Masse
+ihrer Kinder berechnet und der Massen Mittelpunkt.
+
+\subsubsection{Funktion des Barnes-Hut Algorithmus}
+
+Um nun zu definierten welche Cluster zusammengefasst werden und welche nicht
+wird der Barnes-Hut Algorithmus (\ref{eq:barnes_hut}) verwendet. Dieser
+berechnet einen Wert \( \theta \) welcher als Referenz dafür genommen werden
+kann, wie die Relation zwischen der Entfernung zu einem Cluster und der Größe
+des Clusters ist. Um nun Cluster welche weit genug von einem Stern weg sind und
+gleichzeitig klein genug sind zu erkennen und herauszufiltern kann der
+Algorithmus in Kombination mit einem vordefinierten Grenzwert genutzt werden.
+
+\begin{figure}[!h]
+\centering
+\subfloat[Ein Cluster auf mehreren Sternen]{
+    \centering
+    \begin{tikzpicture}
+        \tikzstyle{circlestyle}=[shape=circle,thick,fill,draw, inner sep=0cm]
+        \node at (0, 0) {};
+        \node at (9, 0) {};
+
+        % Random seed for RNG
+        \pgfmathsetseed{7};
+
+        \foreach \x in {1,...,40}
+        {
+          % Find random numbers
+          \pgfmathrandominteger{\a}{10}{390}
+          \pgfmathrandominteger{\b}{10}{390}
+
+          % Scale numbers nicely
+          \pgfmathparse{0.005*\a}\let\a\pgfmathresult;
+          \pgfmathparse{0.005*\b}\let\b\pgfmathresult;
+
+          % draw the circle
+          \fill (\a, \b) circle (0.03);
+        };
+
+        % draw a box around the star cluster
+        \draw[] (0,0) rectangle (2, 2);
+        \node[] at (1, 1) (A1) {};
+        \draw[arrows=<->] (0,-0.2) -- node[midway, align=center, below] {\(d\)} (2,-0.2);
+
+        % draw a star in the far right of the image
+        \node[circlestyle, minimum size=2pt, label=above:\(s_1\)] at (8, 1) (A2) {};
+
+        % draw a line in between the box and the far right of the image
+        \draw[dashed, arrows=<->] (A1) -- node[midway, align=center, above] {\(r\)} (A2);
+    \end{tikzpicture}
+    \label{subfig:ungrouped}
+}
+\hfill
+\subfloat[Die abstraction des obigen Clusters]{
+    \centering
+    \begin{tikzpicture}
+        \tikzstyle{circlestyle}=[shape=circle,thick,fill,draw, inner sep=0cm]
+        \node at (0, 0) {};
+        \node at (9, 0) {};
+
+        % draw a big star in the far left of the image
+        \node[circlestyle, minimum size=2pt, label=above:\(q_1\)] at (1, 0) (B1) {};
+
+        % draw the right star
+        \node[circlestyle, minimum size=2pt, label=above:\(s_1\)] at (8, 0) (B2) {};
+        
+        % draw a line in between the far left star and the right star
+        \draw[dashed, arrows=<->] (B1) -- node[midway, align=center, above] {\(r\)} (B2);
+    \end{tikzpicture}
+    \label{subfig:grouped}
+}
+\caption{Visuelle Darstellung der Funktionsweise des Barnes-Hut Algorithmuses.
+Das Stern Cluster aus \ref{subfig:ungrouped} wird in \ref{subfig:grouped} zu einem
+Stern abstrahiert.}
+\end{figure}
 
 \begin{equation}
-    \text{Wurzel Knoten} = (0, 0), \text{Breite}=b
+    \label{eq:barnes_hut} \theta = \frac{d}{r}
 \end{equation}
+
+Ist das Verhältnis zwischen Entfernung \( r \) und Breite \( b \) des Clusters
+kleiner als der vorher definierte Grenzwert, kann das Cluster zu einem
+Pseudostern zusammengefasst werden.  
+
+\subsection{Kraft-Berechnungen}
+
+\subsubsection{Berechnung der auf einen Stern wirkenden Kraft}
+
+\par Um die Kraft, welche auf einen bestimmten Stern wirkt, zu berechnen, wird der
+Baum von der Wurzel aus rekursiv durchlaufen. Es wird für jeden Knoten das
+jeweilige \( \theta \) berechnet und mit dem vorher definierten Grenzwert
+verglichen. Ist das berechnete \( \theta \) kleiner als der vorher definierte
+Grenzwert wird die Rekursion nicht weiter in den Baum gehen sondern den
+jeweiligen Teilbaum zusammenfassen.
+
+\par Es ist somit durch den Grenzwert somit eine end-Bedingung gegeben, welche
+verhindert das zu weit in den Baum vorgedrungen wird und somit auch verhindert,
+dass Sterne die in einer zu großen Entfernung zu dem Ursprungs Stern liegen und
+dicht genug gruppiert sind in die Berechnung miteinbezogen werden.
+
+\par Möchte man die Kraft auf den Stern \( F \) in Abbildung \ref{fig:cells}
+berechnen berechnet man das \( \theta \) zwischen \( F \) und dem Wurzel-Knoten. Ist
+das berechnete \( \theta \) größer als der vorher definierte Grenzwert kann statt
+weiter in den Baum hineinzugehen und weitere Kräfte zu berechnen die Kraft
+zwischen \( F \) und dem Pseudostern der durch den Wurzel-knoten dargestellt wird 
+direkt berechnet werden. Andernfalls wird weiter in den Baum hineingegangen und
+auf der nächsten Baum-Ebene das Entsprechende \( \theta \) zwischen den Sternen
+berechnet werden.
+
+\par Betrachtet man Abbildung \ref{fig:cells} fällt auf das die Zelle in der
+sich die Sterne \( C \) und \( D \) befinden sehr klein ist und die Entfernung
+zu dem Stern \( F \) vergleichsweise hoch ist. Es kann also angenommen werden,
+dass das Theta zwischen \( F \) und der Zelle in der sich \( C \) und \( B \)
+befinden sehr klein ist. Die Sterne können demnach zusammengefasst werden.
 
 \bigskip
 
-\begin{figure}
+\begin{figure} 
 \hspace{1.5cm}
 \begin{minipage}{0.45\textwidth}
 \begin{tikzpicture}[level 1/.style={level distance=1.5cm}]
@@ -175,6 +268,7 @@ Generierung geschaut in was für einem Bereich die Sterne Generiert werden.
 \end{figure}
 
 \begin{figure}
+\centering
 \begin{forest}
     for tree={circle,draw, s sep+=0.25em}
     [
@@ -203,284 +297,141 @@ Generierung geschaut in was für einem Bereich die Sterne Generiert werden.
 dargestellt}
 \end{figure}
 
-Um die Kraft die auf einen bestimmten Stern wirkt zu berechnen, wird der Baum
-von der Wurzel aus nach unten durchlaufen.  Beispiel: Berechnung der Kraft die
-auf den Stern A wirkt. Der 'Quadtree' wird von oben nach unten durchgegangen,
-also wird das Verhältnis zwischen der Entfernung des Massemittelpunktes zu dem
-Stern A (\(\approx 42\)) und der Breite der jeweiligen Zelle (100) berechnet
-(Formel \ref{eq:barnes_hut}): \( \frac{100}{43} \not> \theta = 0.5\).
-
-\begin{equation} \label{eq:barnes_hut} \theta = \frac{d}{r} \end{equation}
-
-Ist das Verhältnis größer als ein im vorhinein definierter Grenzwert \( \theta
-\), dann wird weiter in den Quadtree ineingegangen und eine Ebene tiefer
-rekursiv weitergeprüft.
-
-Hierbei ist es wichtig, dass die Sterne richtig in den Baum eingefügt wurden,
-d.h.: Die eigentlichen Sterne müssen in den Blättern liegen. Um dies zu
-erreichen, müssen die Sterne beim einfügen immer in der Blätter verschoben
-werden.
 
 \begin{figure}
-\subfigure[Anfangszustand. Der Stern B soll in den Baum, indem sich bereits A befindet, eingefügt werden.]{
+\subfloat[Anfangszustand. Der Stern B soll in den Baum, indem sich bereits A befindet, eingefügt werden.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
         [,phantom
             [B]
             [
                 A
-                []
-                []
-                []
             ]
         ]
     \end{forest}
 }
-\quad
-\subfigure[Stern B kann nicht eingefügt werden, da der Slot durch A belegt ist, also wird A weiter in den Baum versickert.]{
+\;
+\subfloat[Stern B kann nicht eingefügt werden, da der Slot durch A belegt ist, also wird A weiter in den Baum versickert.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
         [,phantom
             [B]
             [
-                [A
-                    []
-                    []
-                    []
-                ]
+                [A]
+                []
                 []
                 []
             ]
         ]
     \end{forest}
 }
-\quad
-\subfigure[B wird nun eingefügt, da sich B jedoch nicht in einem Blatt befinden, muss B weiter versickert werden.]{
+\;
+\subfloat[B wird nun eingefügt, da sich B jedoch nicht in einem Blatt befinden, muss B weiter versickert werden.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
         [,phantom
             [B
-                [A
-                    []
-                    []
-                    []
-                ]
+                [A]
+                []
                 []
                 []
             ]
         ]
     \end{forest}\quad\\[2ex]
 }
-\quad
-\subfigure[Damit B versickert werden kann, wird der Platz der durch A besetzt wird freigemacht, indem A weiter versickert wird.]{
+\;
+\subfloat[Damit B versickert werden kann, wird der Platz der durch A besetzt wird freigemacht, indem A weiter versickert wird.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
          [B
              [
-                 [A
-                     []
-                     []
-                     []
-                 ]
+                 [A]
                  []
-                 [
-                     []
-                     []
-                     []
-                 ]
+                 []
+                 []
              ]
+             []
              []
              []
          ]
     \end{forest}\quad
 }
-\quad
-\subfigure[B kann jetzt in den Baum versickert werden und ist nun ein Blatt.]{
+\;
+\subfloat[B kann jetzt in den Baum versickert werden und ist nun ein Blatt.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
          [
              [
-                 [A
-                     []
-                     []
-                     []
-                 ]
+                 [A]
                  []
-                 [B
-                     []
-                     []
-                     []
-                 ]
+                 [B]
+                 []
              ]
+             []
              []
              []
          ]
     \end{forest}\quad
 }
 
-\caption{Schrittweises einfügen des Sternes B in einen Baum, indem sich bereits ein Stern (A) befindet.} \label{fig:insertwithexisting}
+\caption{Schrittweises einfügen des Sternes B in einen Baum, indem sich bereits ein Stern (A) befindet.}
+\label{fig:insertwithexisting}
 \end{figure}
 
-\begin{lstlisting}
-if node.hasstar() {
+\subsection{Datenbanken}
 
-}
-\end{lstlisting}
+\subsubsection{Speichern der Sterne}
 
-Wie in Abbildung \ref{fig:insertwithexisting} zu sehen ist, wird erst der
-bereits existierende Stern weiter in den Baum versickert, der Stern welcher
-eingefügt werden soll wird danach ebenfalls in den Baum Versickert bis er sich
-in einem der Blätter befindet.
+Die Sterne werden in einer Tabelle in Datenbank \mbox{PostgreSQL} gespeichert.
+Die Tabelle ist folgendermaßen aufgebaut:
 
-Die Koordinate des Massenmittelpunktes \( \varsigma \) des jeweiligen Knotens
-kann wie in Formel (\ref{eq:mean_mass}) beschrieben berechnet werden:
+\begin{figure}[h!]
+\centering
+\begin{tabular} {l | l | l | l | l | l}
+star\_id & \(x\) & \(y\) & \(vx\) & \(vy\) & \(m\) \\ \hline\hline
+1        & -300 & 300 & 0  & 0  & 1000 \\ \hline
+2        & -200 & -200 & 0  & 0  & 1000 \\ \hline
+\dots   & \dots & \dots & \dots & \dots & \dots \\ \hline
+n       & \(x_n\) & \(y_n\) & \(vx_n\)& \(vy_n\) & \(m_n\) \\ \hline
+\end{tabular}
+\caption{Darstellung der Tabelle in der die Sterne gespeichert werden. Die
+star\_id spalte beinhaltet eine global einmalige ID wodurch jeder Stern
+identifiziert werden kann.}
+\end{figure}
 
-\begin{equation} \label{eq:mean_mass}
-\varsigma = \left( \dfrac{ \displaystyle \sum_{i=0}^{n} x_i \cdot m_i }{
-\displaystyle \sum_{i=0}^{n} m_i } , \frac{ \displaystyle \sum_{i=0}^{n} y_i
-\cdot m_i }{ \displaystyle \sum_{i=0}^{n} m_i } \right)
-\end{equation}
+Dadurch das jeder Stern eine einmalige ID besitzt kann diese verwendet werden
+um einfach auf Sterne zu verweisen. Dies ist im Kontext des Einfügens sehr
+hilfreich da die Verschiebung eines Sternes durch ändern der Stern-ID vollzogen
+werden kann.
 
-Es ist somit durch \( \theta \) eine End Bedingung gegeben, welche verhindert
-das zu weit in den Baum vorgedrungen wird und somit auch verhindert, dass
-Sterne die in einer zu großen Entfernung zu dem ursprungssten liegen und dicht
-genug grupiert sind zusammengefasst werden.
+\subsubsection{Speichern von Bäumen}
 
-\subsubsection{Implementierung des Quadtrees}
-Um generell irgendwas zu tun muss in fast allen fällen etwas definiert werden.
-Zur Simulation von Galaxien brauchen wir vor allem eine Methode, Sterne
-einheitlich zu definieren. Der unten definierte Vec2-typ kann einen Vektor oder
-eine Koordinate darstellen was ihn in der Anwendung zu einem praktischen
-Hilfsmittel macht.  Er speichert die X und Y Komponente der jeweiligen Struktur
-die er darstellen soll als float64-typ.
+Um die Bäume in einer Datenbank zu speichern muss eine einheitliche Struktur
+definiert werden um Probleme in der Zukunft zu verhindern. Die Nutzung von
+speziellen Graphen Datenbanken bietet sich natürlich an, jedoch wird diese
+starke Spezialisierung schnell zu einem Hindernis. Um nach dem KISS
+Prinzip\footnote{"Das KISS-Prinzip (englisch Keep it simple, stupid) fordert,
+zu einem Problem eine möglichst einfache Lösung anzustreben."
+\url{https://de.wikipedia.org/wiki/KISS-Prinzip}} eine möglichst einfache
+Lösung zu nutzen werden die Bäume in einer Relationalen Datenbank gespeichert.
+Jeder Knoten wird dabei in einer Zeile der Datenbank gespeichert und erhält
+eine global einzigartige ID. Die Kinder in andrem Knoten hängen werden anhand
+ihrer ID in der Zeile gespeichert sodass es einfach möglich ist einfach auf
+diese zuzugreifen und beim rekursiven durchsuchen des Baumes auf diese
+zuzugreifen.
 
-\begin{lstlisting}
-type Vec struct {
-        X               float64
-        Y               float64
-        Z               float64
-}
 
-method (Vec2) insert() {...}
-method (Vec2) insideOf() bool {...}
-func newVec2() Vec2 {...}
-\end{lstlisting}
+\begin{figure*}[ht]
+\begin{tabular} {l | l | l | l | l | l | l | l | l | l}
+node\_id & box\_width & total\_mass & depth & star\_id & root\_id & isleaf & box\_center & center\_of\_mass & subnodes  \\ 
+bigint & numeric & numeric & numeric & bigint & bigint & boolean & numeric[] & numeric[] & numeric[]  \\ \hline\hline
+2921847 & 1000 & 2000 & 0 & 0 & 1 & False & \{0, 0\}       & \{0, 0\}       & \{ \(\dots\) \}  \\ \hline
+2921848 & 500  & 1000 & 1 & 1 & 1 & True  & \{-500, 500\}  & \{-300, 300\}  & \{ \(\dots\) \}  \\ \hline
+2921849 & 500  & 0    & 1 & 0 & 1 & True  & \{500, 500\}   & \{0, 0\}       & \{ \(\dots\) \}  \\ \hline
+2921850 & 500  & 1000 & 1 & 2 & 1 & True  & \{-500, -500\} & \{-200, -200\} & \{ \(\dots\) \}  \\ \hline
+2921851 & 500  & 0    & 1 & 0 & 1 & True  & \{500, -500\}  & \{0, 0\}       & \{ \(\dots\) \}  \\ \hline
+\end{tabular}
+\caption{Darstellung der Tabelle in der ein Baum definiert ist }
+\end{figure*}
 
-Mithilfe des Vec2-typens kann ein Kompletter Stern definiert werden. Dabei wird
-ein Stern mithilfe seine Position \( C \), seiner Geschwindigkeit \( V \), und
-seiner Masse \( M \) beschrieben.
-
-\begin{lstlisting}
-type Star struct {
-        C               Vec
-        V               Vec
-        Mass            float64
-}
-
-method (Vec2) insideOf() bool {...}
-\end{lstlisting}
-
-Um einen sogennanten quadtree bzw. octree aufzubauen wird erstmal eine
-Räumliche Begrenzung benötigt, die einem Raum beschriebt indem die Sterne
-enthalten sind oder nicht.  Diese grenze ist als `Boundary` definiert, es wird
-dabei der Mittelpunkt der Begrenzung und die kürzeste Entfernung zwischen
-mittelpunkt und äußerer Begrenzung genutzt um den Raum zu definieren.
-
-\begin{lstlisting}
-type Boundary struct {
-        Center          Vec
-        HalfDimension   float64
-}
-
-function newBoundary() {...}
-\end{lstlisting}
-
-Der eigentliche QuadTree bzw. Octree beinhaltet einige Informationen: Die
-Anzahl in ihm enthaltene Sterne, die Räumliche Ausbereitung, die eigentlichen
-Sterne als Star2D definiert und die Rekursionstiefe als integer. Die Definition
-des Quadtrees der Unten zu sehen ist enthält Zeiger zu den Kindern des
-Quadtrees und ist somit rekursiv definiert was es einfach macht neue Kinder zu
-erstellen, da diese eine Kopie ihre Eltern mit einer anderen Begrenzung
-darstellen wodurch die in ihnen enthaltenen Sterne weniger werden.
-
-\begin{lstlisting}
-type QuadTree struct {
-        StarCount       int
-        Boundary        Boundary
-        Star            []Vec2
-
-        NorthWest       *QuadTree
-        NorthEast       *QuadTree
-        SouthWest       *QuadTree
-        SouthEast       *QuadTree
-
-        ReccursionDepth int
-}
-method (QuadTree) insert(Star) bool {...}
-method (QuadTree) subdivide() {...}
-\end{lstlisting}
-
-\subsubsection{Benchmarking}
-
-Um den Geschwindigkeit Vorteil darzustellen, kann die Kraft zwischen \(n\)
-homogen verteilten Sternen berechnet werden. Einmal mit der Brute-Force Methode
-und einmal mit der im Barnes-Hut Algorithmus beschriebenen Methode.
-
-\subsubsection{Runge-Kutta Methoden}
-Die Runge-Kutta Methode wird genutzt, um die Position eines Objektes nach einer
-Beliebigen Zeit zu approximieren. Dabei kann, bei Nutzung eines möglich kleinen
-Zeit Schrittes, ein sehr genaues Ergebnis erzielt werden.  In unserem Fall
-haben wir einen Stern auf den eine Kraft wirkt. Wir wollen die Position des
-Sterns nach einem Zeit schritt berechnen, jedoch auch eine andere Kraft mit
-einbringen um die Sterne auf eine Elliptische Bahn um die Mitte der Galaxie zu
-bringen.  Die Geschwindigkeit die der Stern dabei annimmt kann mit der
-folgenden Formel berechnet werden:
-
-\begin{equation}
-    v = \sqrt{ar}
-\end{equation}
-
-\subsubsection{Goroutines}
-Die Nutzung von mehreren sogenannten Go-Methoden ist unglaublich effektiv, da
-es die Zeit die gebraucht wird das Programm auszuführen drastisch verringert.
-Die Implementation ist ebenfalls unglaublich einfach, es recht
-
-\subsection{Netzwerk}
-
-Damit das Projekt so gut wie möglich skaliert, wird die Anwendung in mehrere
-kleine Dienste aufgeteilt die jeweils eine Funktion übernehmen und
-untereinander kommunizieren. Dabei läuft jede Anwendung in einem eigenen
-Container (siehe \ref{subsubsec:Docker}) und kann somit in falle eines
-Nadelöhrs mehrfach gestartet werden und über einen Reverse-http-Proxy (siehe
-\ref{subsubsec:Traefik}) mit Daten versorgt werden.
-
-\subsubsection{Die verschiedenen Dienste}
-Um die Generierung der Punkt Wolken und die anschließende Simulation der Wolke
-in einzelne Micro Services aufzuspalten muss erstmal definiert werden für welche
-Dienste es überhaupt Sinn macht sie in einzelne Instanzen abhängig bzw.
-unabhängig von einander agieren.
-
-\subsubsection{Docker} \label{subsubsec:Docker}
-\begin{quote}
-\begin{minipage}{\linewidth}
-\stepcounter{footnote}
-\renewcommand\thempfootnote{\arabic{footnote}}
-``Docker vereinfacht die Bereitstellung von Anwendungen, weil sich Container,
-die alle nötigen Pakete enthalten, leicht als Dateien transportieren und
-installieren lassen. Container gewährleisten die Trennung und Verwaltung der
-auf einem Rechner genutzten Ressourcen. Das beinhaltet laut Aussage der
-Entwickler: Code, Laufzeit Modul, System Werkzeuge, Systembibliotheken – alles
-was auf einem Rechner installiert werden kann.``~\footnote{\url{https://de.wikipedia.org/wiki/Docker_(Software)}}
-\end{minipage}
-\end{quote}
-
-\subsubsection{Docker-compose}
-Damit nicht alle Container per Hand auf jedem System gestartet werden müssen
-wird eine sogenannte Docker-compose Datei erstellt, diese ermöglicht es einem
-die komplette Docker Konfiguration in einer Datei zu bündeln und somit auch die
-jeweiligen Netzwerke einfacher zu konfigurieren.
-
-\subsubsection{Traefik} \label{subsubsec:Traefik}
-\subsubsection{Kubernetes}
-\subsubsection{Grafana}
 

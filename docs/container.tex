@@ -1,0 +1,115 @@
+\section{Containerisierung und  Modularisierung}
+
+Um eine optimale Skalierbarkeit zu erreichen wird die Anwendung in einzelne
+Module aufgeteilt und in einzelne Container verpackt. Dadurch ist es einfach
+möglich die Anwendung auf mehreren Rechnern gleichzeitig laufen zu lassen und
+entsprechende Interaktionen zwischen den Container zu definieren.
+
+\subsection{Modularisierung des Generators}
+Um den Generator zu modularisieren muss erst definiert werden was für
+potentielle Module existieren und wie diese miteinander interagieren.
+
+\par Insgesamt generiert der Generator zufällige Werte in einem gegebenen
+Intervall, testet mithilfe des NFW-profils ob diese Sterne existieren oder
+nicht und schreibt die Sterne anschließend in eine Datenbank. Es sind sofort
+ein paar Module ersichtlich: ein Modul welches die Zufälligen Koordinaten
+generiert, ein Modul welches den Wert aus dem NFW-Profil berechnet und ein
+Modul welches die Daten in die Datenbank schreibt.
+
+\begin{figure}[ht!]
+\centering
+\begin{forest}
+    for tree={draw, grow=0}
+    [DB
+        [generator
+            [traefik
+                [NFW]
+                [\( \dots \)]
+                [NFW]
+            ]
+        ]
+    ]
+\end{forest}
+\label{fig:generator_setup}
+\end{figure}
+
+\subsubsection{Generator Modul}
+Das Generator Modul generiert zufällige Koordinaten in einem definiertem
+Intervall und sendet diese an einen NFW Container.  Damit nicht ein Container
+unter der last der ein kommenden Antworten leidet wird der reverse-Proxy
+Traefik\footnote{\url{https://traefik.io/}} verwendet. Dieser routet die
+Anfragen an weitere Container weiter wodurch optimale Lastverteilung und
+Skalierbarkeit gegeben ist.
+
+\subsubsection{NFW Modul}
+Das NFW modul erhält einen Wert und berechnet den entsprechenden NFW Wert.
+Dadurch das er durch Traefik angesteuert wird kann falls die Anzahl der
+Anfragen zu hoch wird einfach ein identische Container gestartet werden.
+Traefik erkennt diesen Container automatisch und kann diesen beim routen der
+Anfragen entsprechend nutzen.
+
+\subsubsection{DB Modul (1)}
+
+\subsection{Modularisierung des Simulators}
+Der Simulator simuliert die Sterne aus der Datenbank indem er Stern für Stern
+die Kraft die auf einen Stern wirkt berechnet, die neue Position des Sternes
+ausrechnet und anschließend den ``neuen'' Stern zurück in die Datenbank
+schriebt.
+
+\begin{figure}[ht!]
+\centering
+\begin{forest}
+    for tree={draw, grow=0}
+    [DB
+        [DB-actions
+            [manager
+                [Simulator]
+                [\( \dots \)]
+                [Simulator]
+            ]
+        ]
+    ]
+\end{forest}
+\label{fig:simulator_setup}
+\end{figure}
+
+\subsubsection{Manager}
+Um die Simulations Container optimal skalieren zu können, wird statt den
+Simulations Container aktiv Sterne zu geben darauf gewartet, dass ein
+Simulations Container einen Stern anfragt. Der Manager fragt im Vorhinein die
+Datenbank an um eine Liste an Stern-IDs zu bekommen auf die die Kraft berechnet
+werden müssen. Diese Liste an Stern-IDs wird in einen Channel geschrieben,
+welcher die Sterne einzeln ausgeben kann.  Sobald der Channel leer ist,
+entnimmt der Manager der Datenbank die nächsten Stern-IDs.
+
+\subsubsection{Simulator}
+Der Simulator Container entnimmt dem Manager Container einen Stern und
+berechnet die Kraft die auf ihn wirkt indem er den in der Datenbank
+gespeicherten Baum in Kombination des Barnes-Hut Algorithmus nutzt. Nachdem die
+Kraft berechnet wurde kann die Neue Position des Stenes berechnet werden und
+wieder in die Datenbank eingefügt werden.
+
+\subsubsection{DB Modul (2)}
+Der Datenbank Container interagiert mit der Datenbank und stellt verschiedene
+Methoden zur Verfügung um z.B. Sterne in die Datenbank einzufügen, Daten aus
+der Datenbank zu erhalten und den Massen Mittelpunkt aller inneren Knoten zu
+berechnen.
+
+\subsection{Sonstige Container}
+
+\subsubsection{Viewer}
+\subsubsection{Controller}
+
+\subsection{Datenbank Skalierung}
+
+Ein Bottleneck das bei der Skallierung enersteht ist die Anbinding and die Datenbank: Desto mehr Simulations-Container mit der Datenbank interagieren, desto höher wird die Auslastung der Datenbank. 
+
+\subsubsection{Sharding}
+Problem: viele simulations container wollen mit einer Datenbank reden
+
+Lösung: Datenbank sharding
+
+\subsubsection{Caching}
+Problem: Bandbreite zu niedrig
+
+Lösung: Local Caching (Geoabhängig)

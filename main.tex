@@ -12,10 +12,10 @@
 \usepackage[hidelinks]{hyperref} % clickable links
 \usepackage{graphicx} % graphics
 \usepackage{caption} % captions
-\usepackage{subfigure}
 %\usepackage{lmodern} % even nicer font
 \usepackage[stable]{footmisc} % footnotes
 \usepackage{svg}
+\usepackage{subfig}
 
 % code listings
 \usepackage{listings}
@@ -32,6 +32,7 @@
 
 \linespread{1}
 \hbadness=99999
+\setlength\parindent{0pt}
 
 \begin{document}
 
@@ -42,11 +43,9 @@
 \input{docs/vorgehensweise}
 \input{docs/generieren}
 \input{docs/simulieren}
+\input{docs/container}
+\input{docs/netzwerk}
 \input{docs/ergebnisse}
-\input{docs/darstellung}
-\input{docs/vektoren}
-\input{docs/fazit}
-\input{docs/quellenliteraturverzeichniss}
 
 \end{document}
 
