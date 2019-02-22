@@ -102,14 +102,152 @@ berechnen.
 
 \subsection{Datenbank Skalierung}
 
-Ein Bottleneck das bei der Skallierung enersteht ist die Anbinding and die Datenbank: Desto mehr Simulations-Container mit der Datenbank interagieren, desto höher wird die Auslastung der Datenbank. 
+\begin{figure*}[ht]
+\centering
+\begin{forest}
+    [, s sep+=5mm, draw, circle
+        [A,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 1] {};}, draw, circle
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+        ]
+        [B,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 2] {};}, draw, circle
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+        ]
+        [C,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 3] {};}, draw, circle
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+        ]
+        [D,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 4] {};}, draw, circle
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+            [\(\dots\)]
+        ]
+    ]
+\end{forest}
+\caption{Die Teilbäume \(A, B, C\) und \(D\) werden auf vershiedenen Systemen betrieben und entsprechend angesprochen.}
+\label{fig:tree_sharding}
+\end{figure*}
+
+Ein Bottleneck das bei der Skallierung enersteht ist die Anbinding and die
+Datenbank: Desto mehr Simulations-Container mit der Datenbank interagieren,
+desto höher wird die Auslastung der Datenbank. Um dieses Problem zu lösen
+bietet es sich an die Datenbank in mehrere teile aufzuspalten. Ein weiters
+essenzielles Problem das bei der Verteilung der Simulations rechen Knoten in
+verschiedene rechenzentren entsteht ist, dass die Bandbreite zur Datenbank
+sinkt und die Latenz steigt.  
 
 \subsubsection{Sharding}
-Problem: viele simulations container wollen mit einer Datenbank reden
+Ab einer gewissen Größe kann eine Galaxie nicht mehr in einer Datenbank
+gespeichert werden. Diese muss demnach auf mehrere Rechner aufgeteilt werden.
+Da die Datenbank einerseits die einzelnen Sterne Speicher und Bäume welche die
+Sterne referenziert bietet es sich hier an diese beiden Bestandsteile der
+Datenbank in einzelne Datenbanken auszulagern.
 
-Lösung: Datenbank sharding
+\paragraph{Sterne} ~\\
+Möchte man eine Liste an Stenen auf mehrere Datenbanken aufspalten wird die
+Liste entsprechend aufgeteilt und auf die Datenbanken verteilt. Wird nun ein
+bestimmter Stern gesucht wird die Anfrage über einen reverse-proxy geleitet
+welcher die Anfrage and die entsprechende Datenbank weiterleitet. 
+
+\par Es ist somit möglich die Liste an sternen auf mehrere Datenbanken
+aufzuteilen und somit die Last von einem System auf mehrere zu verteilen.
+
+\paragraph{Bäume} ~\\
+Die Aufteilung der Datenbank in der die Bäume gespeichert werden gestaltet sich
+ähnlich. Statt alle Bäume in einer Datenbank zu speichern, werden die
+entsprechenden Teilbäume ab einer bestimmten Tiefe in verschiedene Datenbanken
+verteilt. Die Interaktion mit der Datenbank verändert sich nur minimal. Statt
+bei einer Anfrage an die Wurzel eines Baumes die entsprechenden node\_ids der
+Kinder zu bekommen, erhält man die Adresse der Datenbank in der der Teilbaum
+gespeichert wird. Dies ist in Abbildung \ref{fig:tree_sharding} visuell dargestellt.
 
 \subsubsection{Caching}
-Problem: Bandbreite zu niedrig
+Ein weiters Problem das mit der Nutzung eines verteilten Systems entsteht ist
+die Bandbreite zwischen den Simulatoren und der Datenbank und die entsprechene
+Latenz. Mehrere Messungen zwischen verschiedenen Stervern sind in Abbildung
+\ref{fig:bandwidth_latency} dargestellt.
 
-Lösung: Local Caching (Geoabhängig)
+\begin{figure}
+\centering
+\begin{tabular} {l | l | l | l}
+Server 1 & Server 1 & Bandbreite & Latenz \\
+(Standort) & (Standort) & (Mb/s) & (ms) \\ \hline\hline
+Nuremberg & Helsinki & 450 & 23 \\ \hline
+Nuremberg & Nuremberg & 2000 & \\ \hline
+localhost & localhost & 55000 & 0.07 \\ \hline
+\end{tabular}
+\caption{Messungen der Anbindungen zwischen verschiedenen Servern. Die Messung
+Nuremberg \( \leftrightarrow \) Nuremberg bezieht sich auf zwei Server im
+gleichen Rechenzentrum und die Messung localhost \( \leftrightarrow \)
+localhost auf die selbe Maschine}
+\label{fig:bandwidth_latency}
+\end{figure}
+
+\par Es wird deutlich, dass falls der Server auf der die Datenbank läuft sich
+physisch sehr weit von den Servern auf denen sich die Simulation-container
+befinden steht, die Bandbreite zu problemen führt. Es bietet sich also an die
+Daten die viel von den simulations-containern genutzt werden physisch näher an
+die simulations-container zu bringen um so Proleme die durch die niedrige
+Bandbreite und hohe Latenz entstehen zu minimieren. Dies ist in Abbildung
+\ref{fig:local_caching} zu sehen: Es existiert eine Haupt-Datenbank welche alle
+Zeitschritte speichert und mit den lokalen Datenbanken kommuniziert. Diese
+Speichern den jeweilichen Zeitschritt, den die Simulations-Container benötigen
+um die kraftberechnnung durchzuführen. Sobald der Lokale Cache leer ist wird
+der Nächste Zeitschritt von der Datenbank in den cache kopiert und die
+Simulations-Container können mit der Arbeit fortfahren.
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth/2}
+\tikzset{concept/.append style={fill={none}}}
+\begin{tikzpicture}
+  \path[mindmap,concept color=black,text=black]
+    node[concept] {Haupt Datenbank}
+    [clockwise from=0]
+    child[draw, concept color=black] {
+        node[concept] {Nuremberg \\ Cache}
+        [clockwise from=67.5]
+        child { node[concept] {Simulator 1} }
+        child { node[concept] {Simulator 2} }
+        child { node[concept] {Simulator 3} }
+    }
+    child[draw, concept color=black] {
+        node[concept] {Helsinki \\ Cache}
+        [clockwise from=0]
+        child { node[concept] {Simulator 1} }
+        child { node[concept] {Simulator 2} }
+        child { node[concept] {Simulator 3} }
+    }
+    child[draw, concept color=black] {
+        node[concept] {Falkenstein \\ Cache}
+        [clockwise from=-60.5]
+        child { node[concept] {Simulator 1} }
+        child { node[concept] {Simulator 2} }
+        child { node[concept] {Simulator 3} }
+    }
+    child[draw, concept color=black] {
+        node[concept] {Amsterdam \\ Cache}
+        [clockwise from=240]
+        child { node[concept] {Simulator 1} }
+        child { node[concept] {Simulator 2} }
+        child { node[concept] {Simulator 3} }
+    }
+    child[draw, concept color=black] {
+        node[concept] {\( \dots \) \\ Cache}
+        [clockwise from=-180]
+        child { node[concept] {Simulator 1} }
+        child { node[concept] {Simulator 2} }
+        child { node[concept] {Simulator 3} }
+    };
+\end{tikzpicture}
+\end{adjustbox}
+\caption{Aufspaltung der Datenbank und Nutzung von localen Caches}
+\label{fig:local_caching}
+\end{figure}
