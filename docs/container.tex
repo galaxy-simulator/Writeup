@@ -17,20 +17,20 @@ generiert, ein Modul welches den Wert aus dem NFW-Profil berechnet und ein
 Modul welches die Daten in die Datenbank schreibt.
 
 \begin{figure}[ht!]
-\centering
-\begin{forest}
-    for tree={draw, grow=0}
-    [DB
-        [generator
-            [traefik
-                [NFW]
-                [\( \dots \)]
-                [NFW]
+    \centering
+    \begin{forest}
+        for tree={draw, grow=0}
+        [DB
+            [generator
+                [traefik
+                    [NFW]
+                    [\( \dots \)]
+                    [NFW]
+                ]
             ]
         ]
-    ]
-\end{forest}
-\label{fig:generator_setup}
+    \end{forest}
+    \label{fig:generator_setup}
 \end{figure}
 
 \subsubsection{Generator Modul}
@@ -42,13 +42,11 @@ Anfragen an weitere Container weiter wodurch optimale Lastverteilung und
 Skalierbarkeit gegeben ist.
 
 \subsubsection{NFW Modul}
-Das NFW modul erhält einen Wert und berechnet den entsprechenden NFW Wert.
+Das NFW-modul erhält einen Wert und berechnet den entsprechenden NFW Wert.
 Dadurch das er durch Traefik angesteuert wird kann falls die Anzahl der
 Anfragen zu hoch wird einfach ein identische Container gestartet werden.
-Traefik erkennt diesen Container automatisch und kann diesen beim routen der
+Traefik erkennt diesen Container automatisch und kann diesen beim Routen der
 Anfragen entsprechend nutzen.
-
-\subsubsection{DB Modul (1)}
 
 \subsection{Modularisierung des Simulators}
 Der Simulator simuliert die Sterne aus der Datenbank indem er Stern für Stern
@@ -57,20 +55,20 @@ ausrechnet und anschließend den ``neuen'' Stern zurück in die Datenbank
 schriebt.
 
 \begin{figure}[ht!]
-\centering
-\begin{forest}
-    for tree={draw, grow=0}
-    [DB
-        [DB-actions
-            [manager
-                [Simulator]
-                [\( \dots \)]
-                [Simulator]
+    \centering
+    \begin{forest}
+        for tree={draw, grow=0}
+        [DB
+            [DB-actions
+                [manager
+                    [Simulator]
+                    [\( \dots \)]
+                    [Simulator]
+                ]
             ]
         ]
-    ]
-\end{forest}
-\label{fig:simulator_setup}
+    \end{forest}
+    \label{fig:simulator_setup}
 \end{figure}
 
 \subsubsection{Manager}
@@ -86,10 +84,10 @@ entnimmt der Manager der Datenbank die nächsten Stern-IDs.
 Der Simulator Container entnimmt dem Manager Container einen Stern und
 berechnet die Kraft die auf ihn wirkt indem er den in der Datenbank
 gespeicherten Baum in Kombination des Barnes-Hut Algorithmus nutzt. Nachdem die
-Kraft berechnet wurde kann die Neue Position des Stenes berechnet werden und
+Kraft berechnet wurde kann die Neue Position des Sternes berechnet werden und
 wieder in die Datenbank eingefügt werden.
 
-\subsubsection{DB Modul (2)}
+\subsubsection{DB Modul}
 Der Datenbank Container interagiert mit der Datenbank und stellt verschiedene
 Methoden zur Verfügung um z.B. Sterne in die Datenbank einzufügen, Daten aus
 der Datenbank zu erhalten und den Massen Mittelpunkt aller inneren Knoten zu
@@ -98,66 +96,132 @@ berechnen.
 \subsection{Sonstige Container}
 
 \subsubsection{Viewer}
+Um sich das Endergebnis anschauen zu können, müssen die Daten aus der Datenbank
+in ein entsprechendes Format gebracht werden damit sie betrachtet werden
+können. Dazu nutzt der Viewer-Container die Daten aus der Datenbank und
+generiert daraus entsprechend Bilder, Videos oder Vektorgraphiken. Die
+generierten Bilder sind meist in einer sehr hohen Auflösung von
+\(15360\)x\(15360\)px ausgegeben. Problematisch wird hierbei die Datei-Größe:
+Ein solch großes Bild ist schnell mehrere Hundert Megabytes groß. Um das
+Problem zu lösen können die resultierenden Bildern anstatt als Rastergrafik als
+Vektorgraphik exportiert werden. Dadurch kann die Größe der Datei um ein
+mehrfaches reduziert werden und es treten keine Effekte wie Unschärfe auf, da
+die Grafik lokal gerendert wird.
+
 \subsubsection{Controller}
+Der Controller steuert den gesamt Zustand, er bestimmt also was getan werden
+muss, z.B. wieviele Sterne generiert werden, wo sich die einzelnen Container
+befinden und wie die Last auf den Container ist.
+
+\subsubsection{Monitoring}
+Um einen Überblick über die Gesamtsituation zu bekommen ist es nicht hilfreich
+sich auf allen Servern anzumelden und dort nachzugucken wie die Auslastung
+gerade ist.  Um dies an einer Stelle zu ``monitoren`` verwende ich die ``time
+series database`` Prometheus\footnote{\url{https://prometheus.io/}} als backend
+für das Monitoring System Grafana\footnote{\url{https://grafana.com/}}.
+
+\par Die einzelnen Simulations-container senden alle paar Sekunden die Anzahl
+der Sterne die sie bereits simuliert haben an einen Manager-Container. Dieser
+stellt Prometheus wiederum die gesammelten Daten zur Verfügung. Prometheus
+sammelt die Daten alle paar Sekunden ein und speichert diese um anschließend
+einen Verlauf in der Form eines Graphen o.ä. darzustellen.  Um alle Server zu
+monitoren kann Grafana auf mehrere Prometheus Instanzen zugreifen und
+entsprechende Graphen generieren. Somit ist es möglich mit geringem Aufwand
+alle laufenden Dienste auf einen Blick zu überwachen.
+
+\begin{figure}[ht!]
+    \centering
+    \begin{forest}
+        for tree={draw, grow=0}
+        [Grafana
+            [Prometheus
+                [manager, label=Nuremberg
+                    [Simulator]
+                    [\( \dots \)]
+                    [Simulator]
+                ]
+                [manager, label=Helsinki
+                    [Simulator]
+                    [\( \dots \)]
+                    [Simulator]
+                ]
+            ]
+            [Prometheus
+                [manage, label=Falkenstein
+                    [Simulator]
+                    [\( \dots \)]
+                    [Simulator]
+                ]
+                [manager, label=Amsterdam
+                    [Simulator]
+                    [\( \dots \)]
+                    [Simulator]
+                ]
+            ]
+        ]
+    \end{forest}
+    \caption{Das Monitoren von mehreren Containern}
+    \label{fig:monitoring_setup}
+\end{figure}
 
 \subsection{Datenbank Skalierung}
 
 \begin{figure*}[ht]
-\centering
-\begin{forest}
-    [, s sep+=5mm, draw, circle
-        [A,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 1] {};}, draw, circle
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
+    \centering
+    \begin{forest}
+        [, s sep+=5mm, draw, circle
+            [A,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 1] {};}, draw, circle
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+            ]
+            [B,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 2] {};}, draw, circle
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+            ]
+            [C,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 3] {};}, draw, circle
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+            ]
+            [D,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 4] {};}, draw, circle
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+                [\(\dots\)]
+            ]
         ]
-        [B,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 2] {};}, draw, circle
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-        ]
-        [C,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 3] {};}, draw, circle
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-        ]
-        [D,tikz={\node[draw,fit=()(!1)(!l), label=below:Server 4] {};}, draw, circle
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-            [\(\dots\)]
-        ]
-    ]
-\end{forest}
-\caption{Die Teilbäume \(A, B, C\) und \(D\) werden auf vershiedenen Systemen betrieben und entsprechend angesprochen.}
-\label{fig:tree_sharding}
+    \end{forest}
+    \caption{Die Teilbäume \(A, B, C\) und \(D\) werden auf verschiedenen Servern gespeichert und entsprechend angesprochen.}
+    \label{fig:tree_sharding}
 \end{figure*}
 
-Ein Bottleneck das bei der Skallierung enersteht ist die Anbinding and die
+Ein Flaschenhals der bei der Skalierung entsteht ist die Anbindung an die
 Datenbank: Desto mehr Simulations-Container mit der Datenbank interagieren,
 desto höher wird die Auslastung der Datenbank. Um dieses Problem zu lösen
 bietet es sich an die Datenbank in mehrere teile aufzuspalten. Ein weiters
 essenzielles Problem das bei der Verteilung der Simulations rechen Knoten in
-verschiedene rechenzentren entsteht ist, dass die Bandbreite zur Datenbank
+verschiedene Rechenzentren entsteht ist, dass die Bandbreite zur Datenbank
 sinkt und die Latenz steigt.  
 
 \subsubsection{Sharding}
 Ab einer gewissen Größe kann eine Galaxie nicht mehr in einer Datenbank
 gespeichert werden. Diese muss demnach auf mehrere Rechner aufgeteilt werden.
 Da die Datenbank einerseits die einzelnen Sterne Speicher und Bäume welche die
-Sterne referenziert bietet es sich hier an diese beiden Bestandsteile der
+Sterne referenziert bietet es sich hier an diese beiden Bestandteile der
 Datenbank in einzelne Datenbanken auszulagern.
 
 \paragraph{Sterne} ~\\
-Möchte man eine Liste an Stenen auf mehrere Datenbanken aufspalten wird die
+Möchte man eine Liste an Sternen auf mehrere Datenbanken aufspalten wird die
 Liste entsprechend aufgeteilt und auf die Datenbanken verteilt. Wird nun ein
 bestimmter Stern gesucht wird die Anfrage über einen reverse-proxy geleitet
-welcher die Anfrage and die entsprechende Datenbank weiterleitet. 
+welcher die Anfrage an die entsprechende Datenbank weiterleitet. 
 
-\par Es ist somit möglich die Liste an sternen auf mehrere Datenbanken
+\par Es ist somit möglich die Liste an Sternen auf mehrere Datenbanken
 aufzuteilen und somit die Last von einem System auf mehrere zu verteilen.
 
 \paragraph{Bäume} ~\\
@@ -171,83 +235,70 @@ gespeichert wird. Dies ist in Abbildung \ref{fig:tree_sharding} visuell dargeste
 
 \subsubsection{Caching}
 Ein weiters Problem das mit der Nutzung eines verteilten Systems entsteht ist
-die Bandbreite zwischen den Simulatoren und der Datenbank und die entsprechene
-Latenz. Mehrere Messungen zwischen verschiedenen Stervern sind in Abbildung
+die Bandbreite zwischen den Simulatoren und der Datenbank und die entsprechende
+Latenz. Mehrere Messungen zwischen verschiedenen Servern sind in Abbildung
 \ref{fig:bandwidth_latency} dargestellt.
 
 \begin{figure}
-\centering
-\begin{tabular} {l | l | l | l}
-Server 1 & Server 1 & Bandbreite & Latenz \\
-(Standort) & (Standort) & (Mb/s) & (ms) \\ \hline\hline
-Nuremberg & Helsinki & 450 & 23 \\ \hline
-Nuremberg & Nuremberg & 2000 & \\ \hline
-localhost & localhost & 55000 & 0.07 \\ \hline
-\end{tabular}
-\caption{Messungen der Anbindungen zwischen verschiedenen Servern. Die Messung
-Nuremberg \( \leftrightarrow \) Nuremberg bezieht sich auf zwei Server im
-gleichen Rechenzentrum und die Messung localhost \( \leftrightarrow \)
-localhost auf die selbe Maschine}
-\label{fig:bandwidth_latency}
+    \centering
+    \begin{tabular} {l | l | l | l}
+        Server 1 & Server 1 & Bandbreite & Latenz \\
+        (Standort) & (Standort) & (Mb/s) & (ms) \\ \hline\hline
+        Nuremberg & Helsinki & 450 & 23 \\ \hline
+        Nuremberg & Nuremberg & 2000 & \\ \hline
+        localhost & localhost & 55000 & 0.07 \\ \hline
+    \end{tabular}
+    \caption{Messungen der Anbindungen zwischen verschiedenen Servern. Die Messung
+    Nuremberg \( \leftrightarrow \) Nuremberg bezieht sich auf zwei Server im
+    gleichen Rechenzentrum und die Messung localhost \( \leftrightarrow \)
+    localhost auf die selbe Maschine}
+    \label{fig:bandwidth_latency}
 \end{figure}
 
 \par Es wird deutlich, dass falls der Server auf der die Datenbank läuft sich
 physisch sehr weit von den Servern auf denen sich die Simulation-container
-befinden steht, die Bandbreite zu problemen führt. Es bietet sich also an die
-Daten die viel von den simulations-containern genutzt werden physisch näher an
-die simulations-container zu bringen um so Proleme die durch die niedrige
+befinden steht, die Bandbreite zu Problemen führt. Es bietet sich also an die
+Daten die viel von den Simulations-containern genutzt werden physisch näher an
+die Simulations-container zu bringen um so Probleme die durch die niedrige
 Bandbreite und hohe Latenz entstehen zu minimieren. Dies ist in Abbildung
 \ref{fig:local_caching} zu sehen: Es existiert eine Haupt-Datenbank welche alle
 Zeitschritte speichert und mit den lokalen Datenbanken kommuniziert. Diese
-Speichern den jeweilichen Zeitschritt, den die Simulations-Container benötigen
-um die kraftberechnnung durchzuführen. Sobald der Lokale Cache leer ist wird
-der Nächste Zeitschritt von der Datenbank in den cache kopiert und die
+Speichern den jeweiligen Zeitschritt, den die Simulations-Container benötigen
+um die Kraft Berechnung durchzuführen. Sobald der Lokale Cache leer ist wird
+der Nächste Zeitschritt von der Datenbank in den Cache kopiert und die
 Simulations-Container können mit der Arbeit fortfahren.
 
-\begin{figure}
-\begin{adjustbox}{width=\textwidth/2}
-\tikzset{concept/.append style={fill={none}}}
-\begin{tikzpicture}
-  \path[mindmap,concept color=black,text=black]
-    node[concept] {Haupt Datenbank}
-    [clockwise from=0]
-    child[draw, concept color=black] {
-        node[concept] {Nuremberg \\ Cache}
-        [clockwise from=67.5]
-        child { node[concept] {Simulator 1} }
-        child { node[concept] {Simulator 2} }
-        child { node[concept] {Simulator 3} }
+\begin{figure}[ht]
+    \centering
+    \resizebox{\linewidth}{!}{%
+        \tikzset{concept/.append style={fill={none}}}
+        \begin{tikzpicture}
+            \path[mindmap,concept color=black,text=black, level 1/.append style={level distance=4.5cm,sibling angle=120},]
+            node[concept] {Haupt Datenbank}
+            [clockwise from=0]
+            child[draw, concept color=black] {
+                node[concept] {Nuremberg \\ Cache}
+                [clockwise from=60]
+                child { node[concept] {Simulator 1} }
+                child { node[concept] {Simulator \dots} }
+                child { node[concept] {Simulator \( n \)} }
+            }
+            child[draw, concept color=black] {
+                node[concept] {Helsinki \\ Cache}
+                [clockwise from=-60]
+                child { node[concept] {Simulator 1} }
+                child { node[concept] {Simulator \dots} }
+                child { node[concept] {Simulator \( n \)} }
+            }
+            child[draw, concept color=black] {
+                node[concept] {Falkenstein \\ Cache}
+                [clockwise from=-180]
+                child { node[concept] {Simulator 1} }
+                child { node[concept] {Simulator \dots} }
+                child { node[concept] {Simulator \( n \)} }
+            };
+        \end{tikzpicture}
     }
-    child[draw, concept color=black] {
-        node[concept] {Helsinki \\ Cache}
-        [clockwise from=0]
-        child { node[concept] {Simulator 1} }
-        child { node[concept] {Simulator 2} }
-        child { node[concept] {Simulator 3} }
-    }
-    child[draw, concept color=black] {
-        node[concept] {Falkenstein \\ Cache}
-        [clockwise from=-60.5]
-        child { node[concept] {Simulator 1} }
-        child { node[concept] {Simulator 2} }
-        child { node[concept] {Simulator 3} }
-    }
-    child[draw, concept color=black] {
-        node[concept] {Amsterdam \\ Cache}
-        [clockwise from=240]
-        child { node[concept] {Simulator 1} }
-        child { node[concept] {Simulator 2} }
-        child { node[concept] {Simulator 3} }
-    }
-    child[draw, concept color=black] {
-        node[concept] {\( \dots \) \\ Cache}
-        [clockwise from=-180]
-        child { node[concept] {Simulator 1} }
-        child { node[concept] {Simulator 2} }
-        child { node[concept] {Simulator 3} }
-    };
-\end{tikzpicture}
-\end{adjustbox}
-\caption{Aufspaltung der Datenbank und Nutzung von localen Caches}
-\label{fig:local_caching}
+    \caption{Aufspaltung der Datenbank und Nutzung von lokalen Caches}
+    \label{fig:local_caching}
 \end{figure}
