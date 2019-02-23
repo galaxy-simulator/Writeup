@@ -36,29 +36,8 @@ Massen Mittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu schnell,
 explodiert sie förmlich, da die Sterne nicht mehr zusammengehalten werden und
 die Fliehkraft sie einfach auseinanderzieht.
 
-\subsubsection{Die Kraft als Vektor}
-Um die Kraft als Vektor zu berechnen, welcher ein Stern B auf einen Stern A
-ausübt, wird die folgende Formel verwendet:
-
-\begin{equation}
-    \vec{F}_{AB} = \underbrace{-G \frac{m_A m_B}{|r_{AB}|^2}}_{Scalar}
-    \cdot \underbrace{\frac{r_B - r_A}{|r_B - r_A|}}_{Vector}
-\end{equation}
-
-Die Summe der Kräfte die auf einen Stern wirken ist somit die Summe aller
-Kräfte die zwischen dem jeweiligen Stern \( a \) und allen anderen Sternen
-wirken:
-
-\begin{equation}
-    F_{a} = \sum_{\substack{i=0 \\ i\neq a}}^{n-1} F_{ai}
-\end{equation}
-
 \subsection{Konzepte}
-%Die Software ist komplett in Golang geschrieben was die Nutzung von mehreren
-%Threads mithilfe von Go-Methoden stark vereinfacht. Um den Barnes-Hut
-%Algorithmus anzuwenden muss die Galaxie in einen Octree unterteilt werden.
-%Dabei wird eine Zelle definiert die alle Sterne beinhaltet welche anschließen
-%solange unterteilt, bis eine der drei end- Bedingungen eintrifft.
+
 
 \subsubsection{Zu lösende Probleme}
 Wie bereits beschrieben ist eines der Probleme das Auftritt die Anzahl der
@@ -78,7 +57,7 @@ kleine Cluster an Sternen welche weit genug vom Stern auf den die Kräfte
 berechnet werden sollen weg sind und klein genug sind zu einem Pseudo- Stern
 zusammengefasst werden welcher durch den Masse Mittelpunkt der Sterne die er
 repräsentiert definiert ist. Das Konzept wurde 1986 von Josch Barnes und Piet Hut
-veröffentlicht und erlaubt es die Anzahl an Kräften die berechnet werden müssen
+veröffentlicht \cite{barneshut86} und erlaubt es die Anzahl an Kräften die berechnet werden müssen
 von \( O(n^2) \) auf \( O(n log(n)) \) zu reduzieren.
 
 \subsubsection{Generierung von Quadtrees und entsprechende Bäume}
@@ -196,6 +175,24 @@ Pseudostern zusammengefasst werden.
 
 \subsection{Kraft-Berechnungen}
 
+
+\subsubsection{Die Kraft als Vektor}
+Um die Kraft als Vektor zu berechnen, welcher ein Stern B auf einen Stern A
+ausübt, wird die folgende Formel verwendet:
+
+\begin{equation}
+    \vec{F}_{AB} = \underbrace{-G \frac{m_A m_B}{|r_{AB}|^2}}_{Scalar}
+    \cdot \underbrace{\frac{r_B - r_A}{|r_B - r_A|}}_{Vector}
+\end{equation}
+
+Die Summe der Kräfte die auf einen Stern wirken ist somit die Summe aller
+Kräfte die zwischen dem jeweiligen Stern \( a \) und allen anderen Sternen
+wirken:
+
+\begin{equation}
+    F_{a} = \sum_{\substack{i=0 \\ i\neq a}}^{n-1} F_{ai}
+\end{equation}
+
 \subsubsection{Berechnung der auf einen Stern wirkenden Kraft}
 
 \par Um die Kraft, welche auf einen bestimmten Stern wirkt, zu berechnen, wird der
@@ -310,7 +307,7 @@ dargestellt}
         ]
     \end{forest}
 }
-\;
+\,
 \subfloat[Stern B kann nicht eingefügt werden, da der Slot durch A belegt ist, also wird A weiter in den Baum versickert.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
@@ -325,7 +322,7 @@ dargestellt}
         ]
     \end{forest}
 }
-\;
+\,
 \subfloat[B wird nun eingefügt, da sich B jedoch nicht in einem Blatt befinden, muss B weiter versickert werden.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
@@ -339,7 +336,7 @@ dargestellt}
         ]
     \end{forest}\quad\\[2ex]
 }
-\;
+\,
 \subfloat[Damit B versickert werden kann, wird der Platz der durch A besetzt wird freigemacht, indem A weiter versickert wird.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
@@ -356,7 +353,7 @@ dargestellt}
          ]
     \end{forest}\quad
 }
-\;
+\,
 \subfloat[B kann jetzt in den Baum versickert werden und ist nun ein Blatt.]{
     \begin{forest}
         for tree={circle,draw, s sep+=0.25em}
@@ -383,7 +380,7 @@ dargestellt}
 \subsubsection{Speichern der Sterne}
 
 Die Sterne werden in einer Tabelle in Datenbank \mbox{PostgreSQL} gespeichert.
-Die Tabelle ist folgendermaßen aufgebaut:
+Die Tabelle ist wie in Abbildung \ref{fig:stars_table} zu sehen aufgebaut.
 
 \begin{figure}[h!]
 \centering
@@ -397,6 +394,7 @@ n       & \(x_n\) & \(y_n\) & \(vx_n\)& \(vy_n\) & \(m_n\) \\ \hline
 \caption{Darstellung der Tabelle in der die Sterne gespeichert werden. Die
 star\_id spalte beinhaltet eine global einmalige ID wodurch jeder Stern
 identifiziert werden kann.}
+\label{fig:stars_table}
 \end{figure}
 
 Dadurch das jeder Stern eine einmalige ID besitzt kann diese verwendet werden
@@ -404,22 +402,26 @@ um einfach auf Sterne zu verweisen. Dies ist im Kontext des Einfügens sehr
 hilfreich da die Verschiebung eines Sternes durch ändern der Stern-ID vollzogen
 werden kann.
 
+\par Jeder Stern besitzt eine Position, einer Geschwindingkeit und eine Masse.
+Dadurch kann man einen Stern definieren, jedoch auch berechnen was für eine
+Kraft der Stern auf andere Sterne auswirkt. 
+
 \subsubsection{Speichern von Bäumen}
-
-Um die Bäume in einer Datenbank zu speichern muss eine einheitliche Struktur
-definiert werden um Probleme in der Zukunft zu verhindern. Die Nutzung von
-speziellen Graphen Datenbanken bietet sich natürlich an, jedoch wird diese
-starke Spezialisierung schnell zu einem Hindernis. Um nach dem KISS
-Prinzip\footnote{"Das KISS-Prinzip (englisch Keep it simple, stupid) fordert,
-zu einem Problem eine möglichst einfache Lösung anzustreben."
-\url{https://de.wikipedia.org/wiki/KISS-Prinzip}} eine möglichst einfache
-Lösung zu nutzen werden die Bäume in einer Relationalen Datenbank gespeichert.
-Jeder Knoten wird dabei in einer Zeile der Datenbank gespeichert und erhält
-eine global einzigartige ID. Die Kinder in andrem Knoten hängen werden anhand
-ihrer ID in der Zeile gespeichert sodass es einfach möglich ist einfach auf
-diese zuzugreifen und beim rekursiven durchsuchen des Baumes auf diese
-zuzugreifen.
-
+Um die Bäume in denen die galaxien giepeichert werden in einer Datenbank zu
+speichern, muss eine einheitliche Struktur definiert werden um Probleme in der
+Zukunft zu verhindern. Die Nutzung von speziellen Graphen Datenbanken bietet
+sich natürlich an, jedoch wird diese starke Spezialisierung schnell zu einem
+Hindernis. Um nach dem KISS Prinzip\footnote{"Das KISS-Prinzip (englisch Keep
+it simple, stupid) fordert, zu einem Problem eine möglichst einfache Lösung
+anzustreben." \url{https://de.wikipedia.org/wiki/KISS-Prinzip}} eine möglichst
+einfache Lösung zu nutzen werden die Bäume in einer Relationalen Datenbank
+gespeichert. Jeder Knoten wird dabei in einer Zeile der Datenbank gespeichert
+und erhält eine global einzigartige ID. Die Kinder in andrem Knoten hängen
+werden anhand ihrer ID in der Zeile gespeichert sodass es einfach möglich ist
+einfach auf diese zuzugreifen und beim rekursiven durchsuchen des Baumes auf
+diese zuzugreifen. Möchte man einen Teilbaum unterteilen können einfach vier
+neue Knoten erzuegt werden welche vom Knoten an dem sie hängen referneziert
+werden.
 
 \begin{figure*}[ht]
 \begin{tabular} {l | l | l | l | l | l | l | l | l | l}

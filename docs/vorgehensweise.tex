@@ -1,7 +1,12 @@
 \section{Vorgehensweise}
-Wir schon in der Einleitung beschrien habe ich mehrere Techniken kombiniert um
+Wie schon in der Einleitung beschrien habe ich mehrere Techniken kombiniert um
 mein Ziel zu erreichen. Das komplette Projekt lässt sich in mehrere Abschnitte
 unterteilen: Die Generierung der Punkt Wolke welche als Galaxie abstrahiert
 wird und als Basis für weitere Berechnungen genutzt wird, das Einfügen der
 einzelnen Sterne in einen k-nären Baum und die anschließende Simulation welche
 durch nutzen des Barnes-Hut Algorithmus sehr stark beschleunigt wird.
+
+\par Um einer optimale Skallierbarkeit zu erreichen wird die Datenbank in
+mehrere Teile unterteilt. Die Simulation wird ebenfalls auf mehrere Servern
+durchgeführt wodurch es möglich ist die skallierung auf (theoretisch) unendlich
+vielen systemen laufen zu lassen.

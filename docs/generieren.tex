@@ -2,14 +2,16 @@
 
 Das Generieren der Statischen Punkt Wolke aus der die Galaxie abstrahiert wird
 ist ein wichtiger Bestandteil des Gesamtprojektes, denn alles baut auf ihr auf.
-Kurz: um Kräfte zwischen Sternen zu berechnen braucht man erstmal Sterne!
+Kurz: um Kräfte zwischen Sternen zu berechnen braucht man erstmal Sterne!  Dazu
+wird das Navarro-Frenk-White Profil verwendet um eine Statische Punktwolke zu
+generieren.
 
 \subsection{Das Navarro-Frenk-White Profil}
-Das Navarro-Frenk-White Profil (NFW-Profil) ist ein Profil das genutzt wird, um
+Das Navarro-Frenk-White Profil (NFW-Profile) \cite{navarrofrenkwhite95} ist ein Profil das genutzt wird, um
 die Räumilche Massen Verteilung von Sternen zu definieren. Es generiert für
 einen Stern mit dem Abstand \( r \) zum Mittelpunkt der Galaxie eine
 Warscheinlichkeit \( \rho \) welche definiert wie Warscheinlich es ist das der
-Stern mit dem Abstand \( r \) generiert wird:
+Stern mit dem Abstand \( r \) existiert:
 
 \begin{equation} \label{eq:NFW_profile}
   \rho_{NFW}(r) = \frac{ 1 }{ \sqrt{ 2 \pi } \cdot \sigma } \cdot
@@ -48,21 +50,22 @@ Die Galaxie sieht aus der Ferne jetzt jedoch aus wie ein Würfel, da die aus \(
 indem statt \( \rho_{NFW_{1}}(r) \) folgendes gerechnet wird: \(
 \rho_{NFW_{1}}(r) - \rho_{NFW_{1}}(r_{max}) = \rho_{NFW_{2}}(r)\)
 
-\paragraph{Veranschaulichung:}~\\
-
-\begin{center}
-    \begin{tikzpicture}
-        \draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
-        \draw[->] (-1,0) -- (4,0) node[right] {$x$};
-        \draw[->] (0,-1) -- (0,2.5) node[above] {$y$};
-        \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
-        \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{1/\x}) node[below] {$\rho_{NFW_{2}}(x)$};
-    \end{tikzpicture}
-\end{center}
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    \draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
+    \draw[->] (-1,0) -- (4,0) node[right] {$x$};
+    \draw[->] (0,-1) -- (0,2.5) node[above] {$y$};
+    \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
+    \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{1/\x}) node[below] {$\rho_{NFW_{2}}(x)$};
+\end{tikzpicture}
+\caption{Durch Verschiebung des NFW-Profils wird }
+\end{figure}
 
 Problematisch ist hierbei die Tatsache, dass aufgrund der Verschiebung die
 Anzahl der Sterne die in Relation zu dem Bereich in dem sie generiert werden
-sehr stark sinkt.
+sehr stark sinkt und die Zeit um eine bestimmte Anzahl an Sternen zu generieren
+sehr stark steigt.
 
 \subsection{Random Sampling} \label{subsec:random_sampling}
 
@@ -80,42 +83,42 @@ einen zufälligen Wert \( r \) im Intervall \( \psi \), kann überprüft werden,
 > r \lor s < r \) gilt. Ist \( r
 > s \), wird der Stern verworfen, ist \( r < s \) wird der Stern behalten.
 
-\paragraph{Veranschaulichung:}~\\
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    % draw the background grid
+    \draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
 
-\begin{center}
-    \begin{tikzpicture}
-        % draw the background grid
-        \draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
+    % draw the x-ticks
+    \draw[xshift=0cm](0.5cm, 1pt) -- (0.5cm, -3pt) node[anchor=north] {$r_{1}$};
+    \draw[xshift=0cm](1.5cm, 1pt) -- (1.5cm, -3pt) node[anchor=north] {$r_{2}$};
 
-        % draw the x-ticks
-        \draw[xshift=0cm](0.5cm, 1pt) -- (0.5cm, -3pt) node[anchor=north] {$r_{1}$};
-        \draw[xshift=0cm](1.5cm, 1pt) -- (1.5cm, -3pt) node[anchor=north] {$r_{2}$};
+    % draw the y-ticks
+    \draw[yshift=0cm](1pt, 0.5cm) -- (-3pt, 0.5cm) node[anchor=east] {$p(r_{1})$};
+    \draw[yshift=0cm](1pt, 1.0cm) -- (-3pt, 1.0cm) node[anchor=east] {$p(r_{2})$};
 
-        % draw the y-ticks
-        \draw[yshift=0cm](1pt, 0.5cm) -- (-3pt, 0.5cm) node[anchor=east] {$p(r_{1})$};
-        \draw[yshift=0cm](1pt, 1.0cm) -- (-3pt, 1.0cm) node[anchor=east] {$p(r_{2})$};
+    % draw the dotted lines connecting the point s_1
+    \draw[thick, dotted] (0.5, 0) -- (0.5, 0.5);
+    \draw[thick, dotted] (0, 0.5) -- (0.5, 0.5);
 
-        % draw the dotted lines connecting the point s_1
-        \draw[thick, dotted] (0.5, 0) -- (0.5, 0.5);
-        \draw[thick, dotted] (0, 0.5) -- (0.5, 0.5);
+    % draw the dotted lines connecting the point s_2
+    \draw[thick, dotted] (0, 1.0) -- (1.5, 1.0);
+    \draw[thick, dotted] (1.5, 0) -- (1.5, 1.0);
 
-        % draw the dotted lines connecting the point s_2
-        \draw[thick, dotted] (0, 1.0) -- (1.5, 1.0);
-        \draw[thick, dotted] (1.5, 0) -- (1.5, 1.0);
+    % draw the axes
+    \draw[->] (-1,0) -- (4,0) node[right] {$r$};
+    \draw[->] (0,-1) -- (0,2.5) node[above] {$\psi$};
 
-        % draw the axes
-        \draw[->] (-1,0) -- (4,0) node[right] {$r$};
-        \draw[->] (0,-1) -- (0,2.5) node[above] {$\psi$};
+    % draw the plot
+    \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black]
+        plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
 
-        % draw the plot
-        \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black]
-            plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
-
-        % draw the points
-        \fill (0.5, 0.5) circle (0.05) node[above] {$s_1$};
-        \fill (1.5, 1) circle (0.05) node[above] {$s_2$};
-    \end{tikzpicture}
-\end{center}
+    % draw the points
+    \fill (0.5, 0.5) circle (0.05) node[above] {$s_1$};
+    \fill (1.5, 1) circle (0.05) node[above] {$s_2$};
+\end{tikzpicture}
+\caption{Veranschauliching des Konzeptes welches beim Random-Sampling verwendet wird.}
+\end{figure}
 
 In der obigen Abbildung ist zu sehen wir zwei zufällige Punkte \( s_1 \) und \(
 s_2 \) generiert wurden.
@@ -136,6 +139,9 @@ s_1 > NFW(r_1) & \rightarrow \text{Stern wird verworfen}
 \end{cases} 
 \end{equation}
 
+Es kann somit für einen gegebenen Stern geprüft werden ob dieser existiert oder
+nicht und anhand dessen beschlossen werden ob der Stern beibehalten wird oder
+nicht.
 
 \subsection{Lookup Tabellen}
 Statt nun für jeden Stern die Distanz des jeweiligen Sternes \( r \) in das
@@ -157,17 +163,21 @@ zugeordnet wird:
 Die Tabelle kann jedoch nicht so genaue Ergebnisse liefern wie das NFW-Profil,
 sie kann jedoch so angepasst werden, dass sie in den Arbeitsspeicher passt und
 somit das NFW-Profil so genau wie möglich widerspiegelt und das Generieren
-stark verbessert. Mit genügend Arbeitsspeicher ist der Fehler dann auch
-vernachlässigbar. Ein Kritischer Faktor, der beachtet werden muss wenn
-Lookuptabellen genutzt werden, ist die Geschwindigkeit des jeweiligen
-Speichermediums. Nutzt man z.B. Eine sehr langsame Festplatte kann es mehr
-Sinne machen die jeweiligen Werte direkt zu berechnen. Dagegen ist eine
-schnelle SSD (Solid-State-Drive) um einiges schneller.
+stark verbessert. Dadurch das sie in den Arbeitsspeicher passt ist der Tatsache
+das sie nicht direk berechnet wird auch zu vernachlässigen, denn das Lesen von
+Daten aus dem Arbeitsspeicher funktioniert sehr schnell. Mit genügend
+Arbeitsspeicher ist der Fehler demnach auch vernachlässigbar. Ein Kritischer
+Faktor, der beachtet werden muss wenn Lookuptabellen genutzt werden, ist die
+Geschwindigkeit des jeweiligen Speichermediums. Nutzt man z.B. Eine sehr
+langsame Festplatte kann es mehr Sinne machen die jeweiligen Werte direkt zu
+berechnen. Dagegen ist eine schnelle SSD (Solid-State-Drive) um einiges
+schneller, kommt jedoch nicht gegen den Arbeitsspeicher an weshalb es sich
+nicht lohnt ein anders Medium zu nutzen.
 
 \subsection{Beschleunigung der Generierung}
 Es existieren mehrere Möglichkeiten die Generierung der Punkte zu verbessern.
 
-Eine gute Möglichkeit ist die Nutzung von mehr Rechenleistung.  Bei der Nutzung
+Eine gute Möglichkeit ist die Nutzung von mehr Rechenleistung. Bei der Nutzung
 von \( n \) mal sovielen Rechen kernen ist das Generieren von Sternen \( n \)
 mal schneller. Die Server des Server-Hosters Hetzner können dabei gut
 verwendet werden: Es wird stündlich abgerechnet und 32 Kerne mit 128 GB RAM
@@ -177,4 +187,4 @@ Günstigen Preis, sehr viele Koordinaten zu generieren.
 Die Ausgabe von jeder Potentiellen Koordinate in die Kommandozeile verlangsamt
 die Generierung unglaublich stark, da der Rechner darauf wartet das die Ausgabe
 fertig ist bevor er mit der nächsten Rechnung beginnt was zu einer relativ
-starken Verlangsamung der Generierung führt.
+starken Verlangsamung der Generierung führt. Dies sollte also verhindert werden.

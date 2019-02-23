@@ -3,7 +3,11 @@
 Um eine optimale Skalierbarkeit zu erreichen wird die Anwendung in einzelne
 Module aufgeteilt und in einzelne Container verpackt. Dadurch ist es einfach
 möglich die Anwendung auf mehreren Rechnern gleichzeitig laufen zu lassen und
-entsprechende Interaktionen zwischen den Container zu definieren.
+entsprechende Interaktionen zwischen den Container zu definieren. Durch die
+containerisierung mithilfe von Docker\footnote{\url{https://www.docker.com/}}
+ist es ebenfalls möglich die Container auf einem beliebegem Betriebssystem zu
+starten ohne von bestimmten bibliotheksveriosnen abhängig zu sein da diese in
+den Container bereits integriert sind.
 
 \subsection{Modularisierung des Generators}
 Um den Generator zu modularisieren muss erst definiert werden was für
@@ -36,9 +40,10 @@ Modul welches die Daten in die Datenbank schreibt.
 \subsubsection{Generator Modul}
 Das Generator Modul generiert zufällige Koordinaten in einem definiertem
 Intervall und sendet diese an einen NFW Container.  Damit nicht ein Container
-unter der last der ein kommenden Antworten leidet wird der reverse-Proxy
+unter der last der ein kommenden Antworten leidet wird der
+Reverse-Proxy\footnote{\url{https://de.wikipedia.org/wiki/Reverse_Proxy}}
 Traefik\footnote{\url{https://traefik.io/}} verwendet. Dieser routet die
-Anfragen an weitere Container weiter wodurch optimale Lastverteilung und
+Anfragen an weitere Container weiter wodurch einer optimale Lastverteilung und
 Skalierbarkeit gegeben ist.
 
 \subsubsection{NFW Modul}
@@ -47,6 +52,10 @@ Dadurch das er durch Traefik angesteuert wird kann falls die Anzahl der
 Anfragen zu hoch wird einfach ein identische Container gestartet werden.
 Traefik erkennt diesen Container automatisch und kann diesen beim Routen der
 Anfragen entsprechend nutzen.
+
+\subsubsection{DB Modul}
+Um die Daten zurück in die Datenbank zu schrieben wird das DB-Modul welches
+unter \ref{subsubsec:db_modul} genau beschrieben wird verwendet.
 
 \subsection{Modularisierung des Simulators}
 Der Simulator simuliert die Sterne aus der Datenbank indem er Stern für Stern
@@ -87,11 +96,14 @@ gespeicherten Baum in Kombination des Barnes-Hut Algorithmus nutzt. Nachdem die
 Kraft berechnet wurde kann die Neue Position des Sternes berechnet werden und
 wieder in die Datenbank eingefügt werden.
 
-\subsubsection{DB Modul}
+\subsubsection{DB Modul} \label{subsubsec:db_modul}
 Der Datenbank Container interagiert mit der Datenbank und stellt verschiedene
 Methoden zur Verfügung um z.B. Sterne in die Datenbank einzufügen, Daten aus
 der Datenbank zu erhalten und den Massen Mittelpunkt aller inneren Knoten zu
 berechnen.
+
+\par Das Modul stellt ebenfalls funktionen zur verfügung welche sterne die in
+die Funktion gegeben werden in die Datenbank einfügen und lesen können.
 
 \subsection{Sonstige Container}
 
@@ -127,7 +139,8 @@ sammelt die Daten alle paar Sekunden ein und speichert diese um anschließend
 einen Verlauf in der Form eines Graphen o.ä. darzustellen.  Um alle Server zu
 monitoren kann Grafana auf mehrere Prometheus Instanzen zugreifen und
 entsprechende Graphen generieren. Somit ist es möglich mit geringem Aufwand
-alle laufenden Dienste auf einen Blick zu überwachen.
+alle laufenden Dienste auf einen Blick zu überwachen.  Der Gesamte Prozess ist
+in Abbilding \ref{fig:monitoring_setup} dargestellt.
 
 \begin{figure}[ht!]
     \centering
@@ -206,16 +219,19 @@ desto höher wird die Auslastung der Datenbank. Um dieses Problem zu lösen
 bietet es sich an die Datenbank in mehrere teile aufzuspalten. Ein weiters
 essenzielles Problem das bei der Verteilung der Simulations rechen Knoten in
 verschiedene Rechenzentren entsteht ist, dass die Bandbreite zur Datenbank
-sinkt und die Latenz steigt.  
+sinkt und die Latenz steigt.  Dieses Problem wird durch sogennantes
+``Sharding'' (vertikale bzw. horizontalte
+Fragmentierung\footnote{\url{https://de.wikipedia.org/wiki/Denormalisierung\#Fragmentierung}})
+gelöst.
 
-\subsubsection{Sharding}
+\subsubsection{Sharding (Vertikale bzw. Horizontale Fragmentierung)}
 Ab einer gewissen Größe kann eine Galaxie nicht mehr in einer Datenbank
 gespeichert werden. Diese muss demnach auf mehrere Rechner aufgeteilt werden.
 Da die Datenbank einerseits die einzelnen Sterne Speicher und Bäume welche die
 Sterne referenziert bietet es sich hier an diese beiden Bestandteile der
 Datenbank in einzelne Datenbanken auszulagern.
 
-\paragraph{Sterne} ~\\
+\paragraph{Sterne (Horizontale Fragmentierung)} ~\\
 Möchte man eine Liste an Sternen auf mehrere Datenbanken aufspalten wird die
 Liste entsprechend aufgeteilt und auf die Datenbanken verteilt. Wird nun ein
 bestimmter Stern gesucht wird die Anfrage über einen reverse-proxy geleitet
@@ -224,7 +240,7 @@ welcher die Anfrage an die entsprechende Datenbank weiterleitet.
 \par Es ist somit möglich die Liste an Sternen auf mehrere Datenbanken
 aufzuteilen und somit die Last von einem System auf mehrere zu verteilen.
 
-\paragraph{Bäume} ~\\
+\paragraph{Bäume (Vertikale Fragmentierung)} ~\\
 Die Aufteilung der Datenbank in der die Bäume gespeichert werden gestaltet sich
 ähnlich. Statt alle Bäume in einer Datenbank zu speichern, werden die
 entsprechenden Teilbäume ab einer bestimmten Tiefe in verschiedene Datenbanken
