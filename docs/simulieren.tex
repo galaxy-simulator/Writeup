@@ -38,7 +38,6 @@ die Fliehkraft sie einfach auseinanderzieht.
 
 \subsection{Konzepte}
 
-
 \subsubsection{Zu lösende Probleme}
 Wie bereits beschrieben ist eines der Probleme das Auftritt die Anzahl der
 nötigen Kraft Berechnungen wodurch der Rechenaufwand Quadratisch in Relation zu
@@ -375,6 +374,18 @@ dargestellt}
 \label{fig:insertwithexisting}
 \end{figure}
 
+\subsection{Stabile Galaxien}
+Um eine stabile Galaxie zu generieren muss diese rotiert werden damit die
+Zenrtifugalkraft der Kraft welche die Sterne zum Massemittelpunkt zieht
+entgegenwirkt. Dies lässt sich einfach berechnen, jedoch entsteht ein großes
+Problem: Es muss eine Kraft ermittelt werden welche am Anfang der Simulation
+wirkt.
+
+\par Da das Ziel meines Projektes nicht darin liegt das Anfangswertproblem zu
+untersuchen, sondern die restliche Simulation stark zu verschnellern habe ich
+beschlossen das Problem in ein eigenes, einfach austauschbares Modul zu
+verpacken und so in der Zukunft einfach austauschbar zu machen.
+
 \subsection{Datenbanken}
 
 \subsubsection{Speichern der Sterne}
@@ -433,7 +444,7 @@ bigint & numeric & numeric & numeric & bigint & bigint & boolean & numeric[] & n
 2921850 & 500  & 1000 & 1 & 2 & 1 & True  & \{-500, -500\} & \{-200, -200\} & \{ \(\dots\) \}  \\ \hline
 2921851 & 500  & 0    & 1 & 0 & 1 & True  & \{500, -500\}  & \{0, 0\}       & \{ \(\dots\) \}  \\ \hline
 \end{tabular}
-\caption{Darstellung der Tabelle in der ein Baum definiert ist }
+\caption{Darstellung der Tabelle in der ein Baum definiert ist, welcher einmal unterteilt wurde.}
 \end{figure*}
 
 

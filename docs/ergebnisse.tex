@@ -1,12 +1,17 @@
 \section{Ergebnisse}
 
 Die Generierung der Punktwolken ist komplett skaliert, es ist nun möglich
-mehrere Generator-Instanzen hochzufen welche die Sterne generieren und in eine
-Datenbank schreiben. Die Sterne in der Datenbank können nun auch simuliert
+mehrere Generator-Instanzen hochzufahren welche die Sterne generieren und in
+eine Datenbank schreiben. Die Sterne in der Datenbank können auch simuliert
 werden, die ``ursprüngliche`` Laufzeit in \( O(n^2) \) ist auf \( O(n \cdot
 log_4(n)) \) reduziert was es (in der Theorie) ermöglicht eine ``echte``
 Galaxie mit 200.000.000 Sternen in \textbf{45 Minuten} statt \textbf{1267
 Jahren} zu simulieren (Faktor 14.808.695). Es wird dabei davon ausgegangen,
 dass pro Sekunde die Kraft die auf 1.000.000 Sterne wirkt berechnet werden
-kann. Dies ist auf einen einzlnem Rechner nicht durchführbar, durch die
-Aufteilung auf mehrere Rechner ist es jedoch möglich.
+kann. Dies ist auf einem einzlnem Rechner (derzeitig) nicht durchführbar, durch
+die Aufteilung auf mehrere Rechner ist dies jedoch möglich.
+
+\par Durch die Aufteitung in mehrere Module welche containerisiert sind, kann
+die Simulation mithilfe von Crouwdsourcing (in der theorie) durch mehrere
+freiwillige helfer einfach genutzt werden, wodurch es möglich wird viele
+personen in das projekt mit einzubeziehen, jedoch nicht zu überlasten.

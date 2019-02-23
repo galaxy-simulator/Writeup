@@ -1,5 +1,4 @@
 \section{Containerisierung und  Modularisierung}
-
 Um eine optimale Skalierbarkeit zu erreichen wird die Anwendung in einzelne
 Module aufgeteilt und in einzelne Container verpackt. Dadurch ist es einfach
 möglich die Anwendung auf mehreren Rechnern gleichzeitig laufen zu lassen und
@@ -252,8 +251,8 @@ gespeichert wird. Dies ist in Abbildung \ref{fig:tree_sharding} visuell dargeste
 \subsubsection{Caching}
 Ein weiters Problem das mit der Nutzung eines verteilten Systems entsteht ist
 die Bandbreite zwischen den Simulatoren und der Datenbank und die entsprechende
-Latenz. Mehrere Messungen zwischen verschiedenen Servern sind in Abbildung
-\ref{fig:bandwidth_latency} dargestellt.
+Latenz. Der Durchschnite mehrerer Messungen zwischen verschiedenen Servern ist
+in Abbildung \ref{fig:bandwidth_latency} dargestellt.
 
 \begin{figure}
     \centering
@@ -318,3 +317,11 @@ Simulations-Container können mit der Arbeit fortfahren.
     \caption{Aufspaltung der Datenbank und Nutzung von lokalen Caches}
     \label{fig:local_caching}
 \end{figure}
+
+Der Server-Hoster hetzner bietet eine simple und schnelle Art caching einfach
+aufzubauen.  Es ist möglich ein virtueles Volumen zu erzueugen auf das mehrere
+Rechner in einem Rechenzentrum zugreifen können. Das Virtuelle Volume wird in
+die entsprechenden Server als volume eingehangen und ist somit für alle
+nutzbar.  Damit lässt sich an den jeweiligen Standorten einfach ein cache
+implementieren.
+
