@@ -127,19 +127,19 @@ befinden und wie die Last auf den Container ist.
 \subsubsection{Monitoring}
 Um einen Überblick über die Gesamtsituation zu bekommen ist es nicht hilfreich
 sich auf allen Servern anzumelden und dort nachzugucken wie die Auslastung
-gerade ist.  Um dies an einer Stelle zu ``monitoren`` verwende ich die ``time
-series database`` Prometheus\footnote{\url{https://prometheus.io/}} als backend
+gerade ist. Um dies an einer Stelle zu ''monitoren'' verwende ich die ''time
+series database'' Prometheus\footnote{\url{https://prometheus.io/}} als backend
 für das Monitoring System Grafana\footnote{\url{https://grafana.com/}}.
 
-\par Die einzelnen Simulations-container senden alle paar Sekunden die Anzahl
+\par Die einzelnen Simulations-Container senden alle paar Sekunden die Anzahl
 der Sterne die sie bereits simuliert haben an einen Manager-Container. Dieser
 stellt Prometheus wiederum die gesammelten Daten zur Verfügung. Prometheus
 sammelt die Daten alle paar Sekunden ein und speichert diese um anschließend
-einen Verlauf in der Form eines Graphen o.ä. darzustellen.  Um alle Server zu
-monitoren kann Grafana auf mehrere Prometheus Instanzen zugreifen und
+einen Verlauf in der Form eines Graphen o. ä. darzustellen. Um alle Server zu
+Monitoren kann Grafana auf mehrere Prometheus Instanzen zugreifen und
 entsprechende Graphen generieren. Somit ist es möglich mit geringem Aufwand
-alle laufenden Dienste auf einen Blick zu überwachen.  Der Gesamte Prozess ist
-in Abbilding \ref{fig:monitoring_setup} dargestellt.
+alle laufenden Dienste auf einen Blick zu überwachen. Der gesamte Prozess ist
+in Abbildung \ref{fig:monitoring_setup} dargestellt.
 
 \begin{figure}[ht!]
     \centering
