@@ -69,16 +69,16 @@ sehr stark steigt.
 
 \subsection{Random Sampling} \label{subsec:random_sampling}
 
-Um nun zu ermitteln ob ein Stern beibehalten wird oder nicht, wird die
-Random-Sampling Methode verwendet.  Diese generiert in dem gegebenen Intervall,
-welches zwischen der Minimalen und Maximalen Warscheinlichkeit welche aus dem
+Um nun zu ermitteln, ob ein Stern beibehalten wird oder nicht, wird die
+Random-Sampling Methode verwendet. Diese generiert in dem gegebenen Intervall,
+welches zwischen der minimalen und maximalen Wahrscheinlichkeit, welche aus dem
 NFW-Profile entnommen werden, einen zufälligen Wert.
 
 \begin{equation}\label{range:psi}
-    \psi = [ \rho(r_{min}); \rho(r_{max}) ] 
+\psi = [ \rho(r_{min}); \rho(r_{max}) ]
 \end{equation}
 
-Sei \( s \) ein zufälliger Wert im Intervall \( \psi \).  Generiert man nun
+Sei \( s \) ein zufälliger Wert im Intervall \( \psi \). Generiert man nun
 einen zufälligen Wert \( r \) im Intervall \( \psi \), kann überprüft werden, ob \( s
 > r \lor s < r \) gilt. Ist \( r
 > s \), wird der Stern verworfen, ist \( r < s \) wird der Stern behalten.
