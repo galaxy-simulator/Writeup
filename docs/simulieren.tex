@@ -392,7 +392,6 @@ berechnen.
 \subsection{Datenbanken}
 
 \subsubsection{Speichern der Sterne}
-
 Die Sterne werden in einer Tabelle in Datenbank \mbox{PostgreSQL} gespeichert.
 Die Tabelle ist wie in Abbildung \ref{fig:stars_table} zu sehen aufgebaut.
 
@@ -400,25 +399,23 @@ Die Tabelle ist wie in Abbildung \ref{fig:stars_table} zu sehen aufgebaut.
 \centering
 \begin{tabular} {l | l | l | l | l | l}
 star\_id & \(x\) & \(y\) & \(vx\) & \(vy\) & \(m\) \\ \hline\hline
-1        & -300 & 300 & 0  & 0  & 1000 \\ \hline
-2        & -200 & -200 & 0  & 0  & 1000 \\ \hline
-\dots   & \dots & \dots & \dots & \dots & \dots \\ \hline
-n       & \(x_n\) & \(y_n\) & \(vx_n\)& \(vy_n\) & \(m_n\) \\ \hline
+1 & -300 & 300 & 0 & 0 & 1000 \\ \hline
+2 & -200 & -200 & 0 & 0 & 1000 \\ \hline
+\dots & \dots & \dots & \dots & \dots & \dots \\ \hline
+n & \(x_n\) & \(y_n\) & \(vx_n\)& \(vy_n\) & \(m_n\) \\ \hline
 \end{tabular}
 \caption{Darstellung der Tabelle in der die Sterne gespeichert werden. Die
-star\_id spalte beinhaltet eine global einmalige ID wodurch jeder Stern
+star\_id Spalte beinhaltet eine global einmalige ID wodurch jeder Stern
 identifiziert werden kann.}
 \label{fig:stars_table}
 \end{figure}
 
-Dadurch das jeder Stern eine einmalige ID besitzt kann diese verwendet werden
-um einfach auf Sterne zu verweisen. Dies ist im Kontext des Einfügens sehr
-hilfreich da die Verschiebung eines Sternes durch ändern der Stern-ID vollzogen
+Dadurch das jeder Stern eine einmalige ID besitzt kann diese verwendet werden, um einfach auf Sterne zu verweisen. Dies ist im Kontext des Einfügens sehr hilfreich, da die Verschiebung eines Sternes durch Ändern der Stern-ID vollzogen
 werden kann.
 
-\par Jeder Stern besitzt eine Position, einer Geschwindingkeit und eine Masse.
+\par Jeder Stern besitzt eine Position, einer Geschwindigkeit und eine Masse.
 Dadurch kann man einen Stern definieren, jedoch auch berechnen was für eine
-Kraft der Stern auf andere Sterne auswirkt. 
+Kraft der Stern auf andere Sterne auswirkt.
 
 \subsubsection{Speichern von Bäumen}
 Um die Bäume in denen die galaxien giepeichert werden in einer Datenbank zu
