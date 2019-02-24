@@ -212,21 +212,21 @@ in Abbildung \ref{fig:monitoring_setup} dargestellt.
     \label{fig:tree_sharding}
 \end{figure*}
 
-Ein Flaschenhals der bei der Skalierung entsteht ist die Anbindung an die
+Ein Flaschenhals, der bei der Skalierung entsteht ist die Anbindung an die
 Datenbank: Desto mehr Simulations-Container mit der Datenbank interagieren,
-desto höher wird die Auslastung der Datenbank. Um dieses Problem zu lösen
+desto höher wird die Auslastung der Datenbank. Um dieses Problem zu lösen,
 bietet es sich an die Datenbank in mehrere teile aufzuspalten. Ein weiters
-essenzielles Problem das bei der Verteilung der Simulations rechen Knoten in
+essenzielles Problem das bei der Verteilung der Simulation rechen Knoten in
 verschiedene Rechenzentren entsteht ist, dass die Bandbreite zur Datenbank
-sinkt und die Latenz steigt.  Dieses Problem wird durch sogennantes
-``Sharding'' (vertikale bzw. horizontalte
+sinkt und die Latenz steigt. Dieses Problem wird durch sogenanntes ''Sharding''
+(vertikale bzw. horizontale
 Fragmentierung\footnote{\url{https://de.wikipedia.org/wiki/Denormalisierung\#Fragmentierung}})
 gelöst.
 
 \subsubsection{Sharding (Vertikale bzw. Horizontale Fragmentierung)}
 Ab einer gewissen Größe kann eine Galaxie nicht mehr in einer Datenbank
 gespeichert werden. Diese muss demnach auf mehrere Rechner aufgeteilt werden.
-Da die Datenbank einerseits die einzelnen Sterne Speicher und Bäume welche die
+Da die Datenbank einerseits die einzelnen Sterne Speicher und Bäume, welche die
 Sterne referenziert bietet es sich hier an diese beiden Bestandteile der
 Datenbank in einzelne Datenbanken auszulagern.
 
