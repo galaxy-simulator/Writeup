@@ -270,16 +270,16 @@ in Abbildung \ref{fig:bandwidth_latency} dargestellt.
     \label{fig:bandwidth_latency}
 \end{figure}
 
-\par Es wird deutlich, dass falls der Server auf der die Datenbank läuft sich
-physisch sehr weit von den Servern auf denen sich die Simulation-container
+\par Es wird deutlich, dass falls der Server auf der die Datenbank läuft, sich
+physisch sehr weit von den Servern, auf denen sich die Simulation-container
 befinden steht, die Bandbreite zu Problemen führt. Es bietet sich also an die
-Daten die viel von den Simulations-containern genutzt werden physisch näher an
-die Simulations-container zu bringen um so Probleme die durch die niedrige
+Daten die viel von den Simulations-Containern genutzt werden physisch näher an
+die Simulations-Container zu bringen um so Probleme die durch die niedrige
 Bandbreite und hohe Latenz entstehen zu minimieren. Dies ist in Abbildung
-\ref{fig:local_caching} zu sehen: Es existiert eine Haupt-Datenbank welche alle
-Zeitschritte speichert und mit den lokalen Datenbanken kommuniziert. Diese
-Speichern den jeweiligen Zeitschritt, den die Simulations-Container benötigen
-um die Kraft Berechnung durchzuführen. Sobald der Lokale Cache leer ist wird
+\ref{fig:local_caching} zu sehen: Es existiert eine Haupt-Datenbank, welche
+alle Zeitschritte speichert und mit den lokalen Datenbanken kommuniziert. Diese
+Speichern den jeweiligen Zeitschritt, den die Simulations-Container benötigen,
+um die Kraft Berechnung durchzuführen. Sobald der Lokale Cache leer ist, wird
 der Nächste Zeitschritt von der Datenbank in den Cache kopiert und die
 Simulations-Container können mit der Arbeit fortfahren.
 
