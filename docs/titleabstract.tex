@@ -9,16 +9,18 @@ Universität Düsseldorf}
     \maketitle
     \centering
     \begin{minipage}{0.7\textwidth}
-        Ist es möglich die Entstehung von Galaxien zu simulieren?  Um diese Frage zu
-        beantworten bin ich zu dem Schluss gekommen, dass ich das doch einfach mal
+        Ist es möglich die Entstehung von Galaxien zu simulieren? Um diese
+        Frage zu beantworten bin ich zu dem Schluss gekommen, dass ich das doch mal
         ausprobieren sollte. Dazu habe ich das Navarro-Frenk-White Profil implementiert
-        um anschließen die Kräfte die Zwischen den Sternen wirken zu berechnen. Dabei
-        stattete ich die Sterne mit einer zufälligen Masse aus und Unterteilte die
-        Galaxie in dynamisch-große Zellen um die Simulation stark zu beschleunigen.  Um
-        eine Stabile Galaxie zu simulieren müssen jedoch alle Sterne in der Galaxie
-        eine Anfangsgeschwindigkeit besitzen die sie auf eine Kreisbahn lenkt, damit
-        die Kraft, welche die Sterne in die Mitte der Galaxie zieht ausgeglichen
-        werden.
+        um Cluster an Sternen zu generieren und anschließen die Kräfte die Zwischen den
+        Sternen wirken zu berechnen. Dabei stattete ich die Sterne mit einer zufälligen
+        Masse aus und Unterteilte die Galaxie in dynamisch-große Zellen um die
+        Simulation stark zu beschleunigen. Um die Simulation noch stärker zu optimieren,
+        implementierte ich die Simulation sehr modular um diese auf theoretisch
+        mehreren Tausend Servern gleichzeitig laufen zu lassen. Insgesamt sollte es nun
+        möglich sein einen Zeitschritt in einer Galaxie mit 200 Millionen Sternen in
+        ca. \textit{45 Minuten} statt \textit{1265 Jahren} zu berechnen (Angenommen es
+        werden 1 Millionen Kraftberechnungen pro Sekunde durchgeführt).
     \end{minipage}
     \bigskip
     \bigskip
