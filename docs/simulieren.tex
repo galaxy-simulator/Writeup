@@ -372,21 +372,20 @@ dargestellt}
 \end{figure}
 
 \subsection{Stabile Galaxien}
-Um eine stabile Galaxie zu generieren muss diese rotiert werden damit die
-Zenrtifugalkraft der Kraft welche die Sterne zum Massemittelpunkt zieht
+Um eine stabile Galaxie zu generieren, muss diese rotiert werden damit die
+Zentrifugalkraft der Kraft, welche die Sterne zum Massemittelpunkt zieht
 entgegenwirkt. Dies lässt sich einfach berechnen, jedoch entsteht ein großes
-Problem: Es muss eine Kraft ermittelt werden welche am Anfang der Simulation
-wirkt.
+Problem: Es muss eine Kraft ermittelt werden, welche am Anfang der Simulation wirkt.
 
 \par Da das Ziel meines Projektes nicht darin liegt das Anfangswertproblem zu
-untersuchen, sondern die restliche Simulation stark zu verschnellern habe ich
+untersuchen, sondern die restliche Simulation stark zu parallelisieren habe ich
 beschlossen das Problem in ein eigenes, einfach austauschbares Modul zu
 verpacken und so in der Zukunft einfach austauschbar zu machen.
 
-\par Um jedoch eine ``halb'' Stabile Galaxie zu generieren rotierte ich einfach
+\par Um jedoch eine ''halb'' Stabile Galaxie zu generieren rotierte ich einfach
 (im zwei Dimenionalem) die Kraft die im ersten Zeitschritt auf den Stern wirkte
 um 90 Grad. Dadurch rotieren die Sterne anfangs um den Massenmittelpunkt.
-Dieses Konzept ist in keinem Sinne physikalisch korrekt, es kann jedoch als
+Dieses Konzept ist in keinem Sinne physikalisch korrekt, es kann jedoch, als
 Platzhalter genutzt werden bis einer richtige Möglichkeit gefunden wird dies zu
 berechnen.
 
