@@ -191,24 +191,23 @@ wirken:
 \end{equation}
 
 \subsubsection{Berechnung der auf einen Stern wirkenden Kraft}
-
 \par Um die Kraft, welche auf einen bestimmten Stern wirkt, zu berechnen, wird der
 Baum von der Wurzel aus rekursiv durchlaufen. Es wird für jeden Knoten das
 jeweilige \( \theta \) berechnet und mit dem vorher definierten Grenzwert
 verglichen. Ist das berechnete \( \theta \) kleiner als der vorher definierte
-Grenzwert wird die Rekursion nicht weiter in den Baum gehen sondern den
+Grenzwert wird die Rekursion nicht weiter in den Baum gehen, sondern den
 jeweiligen Teilbaum zusammenfassen.
 
-\par Es ist somit durch den Grenzwert somit eine end-Bedingung gegeben, welche
+\par Es ist somit durch den Grenzwert somit eine End-Bedingung gegeben, welche
 verhindert das zu weit in den Baum vorgedrungen wird und somit auch verhindert,
-dass Sterne die in einer zu großen Entfernung zu dem Ursprungs Stern liegen und
+dass Sterne die in einer zu großen Entfernung zu des Ursprungs Stern liegen und
 dicht genug gruppiert sind in die Berechnung miteinbezogen werden.
 
 \par Möchte man die Kraft auf den Stern \( F \) in Abbildung \ref{fig:cells}
 berechnen berechnet man das \( \theta \) zwischen \( F \) und dem Wurzel-Knoten. Ist
 das berechnete \( \theta \) größer als der vorher definierte Grenzwert kann statt
 weiter in den Baum hineinzugehen und weitere Kräfte zu berechnen die Kraft
-zwischen \( F \) und dem Pseudostern der durch den Wurzel-knoten dargestellt wird 
+zwischen \( F \) und dem Pseudostern, der durch den Wurzel-knoten dargestellt wird
 direkt berechnet werden. Andernfalls wird weiter in den Baum hineingegangen und
 auf der nächsten Baum-Ebene das Entsprechende \( \theta \) zwischen den Sternen
 berechnet werden.
