@@ -10,14 +10,14 @@ den Container bereits integriert sind.
 
 \subsection{Modularisierung des Generators}
 Um den Generator zu modularisieren muss erst definiert werden was für
-potentielle Module existieren und wie diese miteinander interagieren.
+potenzielle Module existieren und wie diese miteinander interagieren.
 
 \par Insgesamt generiert der Generator zufällige Werte in einem gegebenen
 Intervall, testet mithilfe des NFW-profils ob diese Sterne existieren oder
 nicht und schreibt die Sterne anschließend in eine Datenbank. Es sind sofort
-ein paar Module ersichtlich: ein Modul welches die Zufälligen Koordinaten
-generiert, ein Modul welches den Wert aus dem NFW-Profil berechnet und ein
-Modul welches die Daten in die Datenbank schreibt.
+ein paar Module ersichtlich: ein Modul, welches die Zufälligen Koordinaten
+generiert, ein Modul, welches den Wert aus dem NFW-Profil berechnet und ein
+Modul, welches die Daten in die Datenbank schreibt.
 
 \begin{figure}[ht!]
     \centering
