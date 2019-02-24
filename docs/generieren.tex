@@ -145,30 +145,30 @@ nicht.
 
 \subsection{Lookup Tabellen}
 Statt nun für jeden Stern die Distanz des jeweiligen Sternes \( r \) in das
-NFW-Profil (\ref{eq:NFW_profile}) einzusetzen, kann das NFW-Profil im vorhinein
+NFW-Profil (\ref{eq:NFW_profile}) einzusetzen, kann das NFW-Profil im vor hinein
 berechnet werden. Es wird dabei eine Tabelle erstellt in der die Entfernung des
 Sternes zum Mittelpunkt der Galaxie der jeweiligen Wahrscheinlichkeit
 zugeordnet wird:
 
 \begin{center}
 \begin{tabular} {l | l}
-    \( r_1 \) & \( \rho_1 \) \\ \hline
-    \( r_2 \) & \( \rho_2 \) \\ \hline
-    \( r_3 \) & \( \rho_3 \) \\ \hline
-    \( \dots \) & \( \dots \) \\ \hline
-    \( r_n \quad n \in \mathbb{N} \) & \( \rho_n \quad n \in \mathbb{N} \) \\ \hline
+\( r_1 \) & \( \rho_1 \) \\ \hline
+\( r_2 \) & \( \rho_2 \) \\ \hline
+\( r_3 \) & \( \rho_3 \) \\ \hline
+\( \dots \) & \( \dots \) \\ \hline
+\( r_n \quad n \in \mathbb{N} \) & \( \rho_n \quad n \in \mathbb{N} \) \\ \hline
 \end{tabular}
 \end{center}
 
 Die Tabelle kann jedoch nicht so genaue Ergebnisse liefern wie das NFW-Profil,
 sie kann jedoch so angepasst werden, dass sie in den Arbeitsspeicher passt und
 somit das NFW-Profil so genau wie möglich widerspiegelt und das Generieren
-stark verbessert. Dadurch das sie in den Arbeitsspeicher passt ist der Tatsache
-das sie nicht direk berechnet wird auch zu vernachlässigen, denn das Lesen von
+stark verbessert. Dadurch das sie in den Arbeitsspeicher passt, ist der Tatsache
+das sie nicht direkt berechnet wird auch zu vernachlässigen, denn das Lesen von
 Daten aus dem Arbeitsspeicher funktioniert sehr schnell. Mit genügend
-Arbeitsspeicher ist der Fehler demnach auch vernachlässigbar. Ein Kritischer
-Faktor, der beachtet werden muss wenn Lookuptabellen genutzt werden, ist die
-Geschwindigkeit des jeweiligen Speichermediums. Nutzt man z.B. Eine sehr
+Arbeitsspeicher ist der Fehler demnach auch vernachlässigbar. Ein kritischer
+Faktor, der beachtet werden muss, wenn Lookuptabellen genutzt werden, ist die
+Geschwindigkeit des jeweiligen Speichermediums. Nutzt man z. B. Eine sehr
 langsame Festplatte kann es mehr Sinne machen die jeweiligen Werte direkt zu
 berechnen. Dagegen ist eine schnelle SSD (Solid-State-Drive) um einiges
 schneller, kommt jedoch nicht gegen den Arbeitsspeicher an weshalb es sich
