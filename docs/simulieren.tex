@@ -418,8 +418,8 @@ Dadurch kann man einen Stern definieren, jedoch auch berechnen was für eine
 Kraft der Stern auf andere Sterne auswirkt.
 
 \subsubsection{Speichern von Bäumen}
-Um die Bäume in denen die galaxien giepeichert werden in einer Datenbank zu
-speichern, muss eine einheitliche Struktur definiert werden um Probleme in der
+Um die Bäume in denen die Galaxien gespeichert werden in einer Datenbank zu
+speichern, muss eine einheitliche Struktur definiert werden, um Probleme in der
 Zukunft zu verhindern. Die Nutzung von speziellen Graphen Datenbanken bietet
 sich natürlich an, jedoch wird diese starke Spezialisierung schnell zu einem
 Hindernis. Um nach dem KISS Prinzip\footnote{"Das KISS-Prinzip (englisch Keep
@@ -428,10 +428,10 @@ anzustreben." \url{https://de.wikipedia.org/wiki/KISS-Prinzip}} eine möglichst
 einfache Lösung zu nutzen werden die Bäume in einer Relationalen Datenbank
 gespeichert. Jeder Knoten wird dabei in einer Zeile der Datenbank gespeichert
 und erhält eine global einzigartige ID. Die Kinder in andrem Knoten hängen
-werden anhand ihrer ID in der Zeile gespeichert sodass es einfach möglich ist
+werden anhand ihrer ID in der Zeile gespeichert, sodass es einfach möglich ist
 einfach auf diese zuzugreifen und beim rekursiven durchsuchen des Baumes auf
 diese zuzugreifen. Möchte man einen Teilbaum unterteilen können einfach vier
-neue Knoten erzuegt werden welche vom Knoten an dem sie hängen referneziert
+neue Knoten erzeugt werden, welche vom Knoten an dem sie hängen referenziert
 werden.
 
 \begin{figure*}[ht]
