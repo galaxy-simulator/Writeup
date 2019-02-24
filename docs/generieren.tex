@@ -7,20 +7,20 @@ wird das Navarro-Frenk-White Profil verwendet, um eine statische Punktwolke zu
 generieren.
 
 \subsection{Das Navarro-Frenk-White Profil}
-Das Navarro-Frenk-White Profil (NFW-Profile) \cite{navarrofrenkwhite95} ist ein Profil das genutzt wird, um
-die Räumilche Massen Verteilung von Sternen zu definieren. Es generiert für
+Das Navarro-Frenk-White Profil (NFW-Profile) \cite{navarrofrenkwhite95} ist ein Profil, das genutzt wird, um
+die Räumliche Massen Verteilung von Sternen zu definieren. Es generiert für
 einen Stern mit dem Abstand \( r \) zum Mittelpunkt der Galaxie eine
-Warscheinlichkeit \( \rho \) welche definiert wie Warscheinlich es ist das der
+Wahrscheinlichkeit \( \rho \) welche definiert, wie Wahrscheinlich es ist das der
 Stern mit dem Abstand \( r \) existiert:
 
 \begin{equation} \label{eq:NFW_profile}
-  \rho_{NFW}(r) = \frac{ 1 }{ \sqrt{ 2 \pi } \cdot \sigma } \cdot
-  \exp \left( \frac{ -\phi(r) }{ \sigma^{ 2 } } \right)
+\rho_{NFW}(r) = \frac{ 1 }{ \sqrt{ 2 \pi } \cdot \sigma } \cdot
+\exp \left( \frac{ -\phi(r) }{ \sigma^{ 2 } } \right)
 \end{equation}
 
 \begin{equation*}
-  \phi(r) = \frac{ 4\pi \cdot G \cdot f_{0} \cdot R_{s}^3 }{ r } \cdot
-  ln{ \left( 1 + \frac{ r }{ R_{s} } \right) }
+\phi(r) = \frac{ 4\pi \cdot G \cdot f_{0} \cdot R_{s}^3 }{ r } \cdot
+ln{ \left( 1 + \frac{ r }{ R_{s} } \right) }
 \end{equation*}
 
 Es kann nun mithilfe der Random-Sampling Methode (\ref{subsec:random_sampling})
@@ -31,11 +31,11 @@ ermittelt werden, ob ein Stern beibehalten wird oder nicht.\\
 des Pythagoras (\ref{eq:pythagoras}) verwendet werden.
 
 \begin{equation} \label{eq:pythagoras}
-    r_{3} = \sqrt{x_{1}^{2} + x_{2}^{2} + x_{3}^{2} }
+r_{3} = \sqrt{x_{1}^{2} + x_{2}^{2} + x_{3}^{2} }
 \end{equation}
 
 Der Abstand \( r_{3} \) zum Mittelpunkt des Raumes kann nun in das NFW-Profil
-(\ref{eq:NFW_profile}) gegeben werden um einen Wert \( s \) zu ermitteln welcher
+(\ref{eq:NFW_profile}) gegeben werden um einen Wert \( s \) zu ermitteln, welcher
 beim Random Sampling verwendet wird:
 
 \begin{equation}
@@ -53,13 +53,13 @@ indem statt \( \rho_{NFW_{1}}(r) \) folgendes gerechnet wird: \(
 \begin{figure}
 \centering
 \begin{tikzpicture}
-    \draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
-    \draw[->] (-1,0) -- (4,0) node[right] {$x$};
-    \draw[->] (0,-1) -- (0,2.5) node[above] {$y$};
-    \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
-    \draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{1/\x}) node[below] {$\rho_{NFW_{2}}(x)$};
+\draw[very thin, color=lightgray, step=5mm] (-0.9, -0.9) grid (3.9, 2.4);
+\draw[->] (-1,0) -- (4,0) node[right] {$x$};
+\draw[->] (0,-1) -- (0,2.5) node[above] {$y$};
+\draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{(1/\x) + 1}) node[above] {$\rho_{NFW_{1}}(x)$};
+\draw[scale=0.5, domain=0.25:6.5, smooth, variable=\x, black] plot ({\x},{1/\x}) node[below] {$\rho_{NFW_{2}}(x)$};
 \end{tikzpicture}
-\caption{Durch Verschiebung des NFW-Profils wird }
+\caption{Durch Verschiebung des NFW-Profils wird die Annäherung an einen Würfel korrigiert.}
 \end{figure}
 
 Problematisch ist hierbei die Tatsache, dass aufgrund der Verschiebung die
