@@ -80,13 +80,13 @@ schreibt.
 \end{figure}
 
 \subsubsection{Manager}
-Um die Simulations Container optimal skalieren zu können, wird statt den
-Simulations Container aktiv Sterne zu geben darauf gewartet, dass ein
-Simulations Container einen Stern anfragt. Der Manager fragt im Vorhinein die
-Datenbank an um eine Liste an Stern-IDs zu bekommen auf die die Kraft berechnet
-werden müssen. Diese Liste an Stern-IDs wird in einen Channel geschrieben,
-welcher die Sterne einzeln ausgeben kann.  Sobald der Channel leer ist,
-entnimmt der Manager der Datenbank die nächsten Stern-IDs.
+Um die Simulations-Container optimal skalieren zu können, wird statt den
+Simulations-Container aktiv Sterne zu geben darauf gewartet, dass ein
+Simulations-Container einen Stern anfragt. Der Manager fragt im Vorhinein die
+Datenbank an, um eine Liste an Stern-IDs zu bekommen, auf die die Kraft
+berechnet werden müssen. Diese Liste an Stern-IDs wird in einen Channel
+geschrieben, welcher die Sterne einzeln ausgeben kann. Sobald der Channel leer
+ist, entnimmt der Manager der Datenbank die nächsten Stern-IDs.
 
 \subsubsection{Simulator}
 Der Simulator Container entnimmt dem Manager Container einen Stern und
