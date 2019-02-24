@@ -3,3 +3,28 @@
 Damit die Container untereinander interagieren können kommunizieren sie über
 verschiedene APIs. Die NFW-container exponieren eine HTTP API welche einen Wert
 \( r \) annehmen und den jeweiligen NFW Wert ausrechnen.
+
+\begin{figure*}[ht]
+\centering
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+  \tikzstyle{every state}=[fill=white,draw=black,text=black]
+
+  \node[state] (NBG) {NBG};
+  \node[state] (HEL) [right of=NBG] {HEL};
+  \node[state] (FSN) [right of=HEL] {FSN};
+
+  \path (NBG) edge [bend left] node {\( 440 \) Mbits/sec} (HEL)
+        (HEL) edge [bend left] node {\( 343 \) Mbits/sec} (NBG)
+        (HEL) edge [bend left] node {\( 415 \) Mbits/sec} (FSN)
+        (FSN) edge [bend left] node {\( 542 \) Mbits/sec} (HEL)
+
+        (NBG) edge [bend left, out=90, in=90] node {\( 1050 \) Mbits/sec} (FSN)
+        (FSN) edge [bend left, out=90, in=90] node {\( 1570 \) Mbits/sec} (NBG)
+
+        (NBG) edge [loop left]  node {\( 1290 \) Mbits/sec} (NBG)
+        (HEL) edge [loop below] node {\( 1111 \) Mbits/sec} (HEL)
+        (FSN) edge [loop right] node {\( 2222 \) Mbits/sec} (FSN);
+\end{tikzpicture}
+\caption{Bandbreite zwischen den Rechenzentren des Serverhosters Hetzner (NBG \( \Rightarrow \) Nuremberg, HEL \( \Rightarrow \) Helsinki, FSN \( \Rightarrow \) Falkenstein)}
+\end{figure*}
