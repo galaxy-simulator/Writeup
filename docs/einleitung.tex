@@ -1,21 +1,19 @@
 \section{Einleitung}
 Das Projekt ist nach meinem vorletzten Jugend-Forscht Projekt entstanden: Ich
-habe ein Praktikum in Astronomischen Rechen Institut in Heidelberg genutzt, um
+habe ein Praktikum in astronomischen Rechen Institut in Heidelberg genutzt, um
 mit einem Doktoranden\footnote{Tim Tugendhat} das Navarro-Frenk-White Profil,
-das zum generieren von Punkt Wolken genutzt wird, zu visualisieren. Anschließend
-hat sich das Projekt ein bisschen verlaufen, irgendwann beschloss ich jedoch,
-dass das Projekt weiterzuführen und statt nur statische Galaxien zu generieren
-dazu überzugehen die Galaxien zu simulieren, also die Entwicklung einer
-virtuellen Galaxie zu untersuchen.\\\par
-Eines der Entscheidenden Probleme war die Laufzeit der Simulation. Das Problem
-das es zu lösen galt, war die ursprüngliche Laufzeit der Simulation von
-\(O(n^2)\) soweit zu minimieren, sodass die simulation einer ''echten''
-Galaxie in absehbarer Zeit durchführbar ist.\\\par
-Die Simulation von einem Zeitschritt bei 200 Millionen Sternen würde es
-erfordern \(4 \cdot 10^{16} \) Kräfteberechnungen durchzuführen. Im fall von
-1.000.000 Berechnungen pro Sekunde wäre die Berechnung für einen Zeitschritt
-nach ca. \textbf{1267 Jahren} fertig. Durch viele Optimierungen schafft es
-meine Software die Anzahl an Kräften die berechnet werden müssen auf
-(bestenfalls) \( 2.7 \cdot 10^{9} \) zu reduzieren und somit eine Laufzeit von
-ca. \textbf{45 minuten} zu erreichen.
-
+das zum Generieren von Punkt Wolken genutzt wird, zu visualisieren.
+Anschließend hat sich das Projekt ein bisschen verlaufen, irgendwann beschloss
+ich jedoch, dass das Projekt weiterzuführen und statt nur statische Galaxien zu
+generieren, dazu überzugehen die Galaxien zu simulieren, also die Entwicklung
+einer virtuellen Galaxie zu untersuchen.\\\par Eines der entscheidenden
+Probleme war die Laufzeit der Simulation. Das Problem, das es zu lösen galt,
+war die ursprüngliche Laufzeit der Simulation von \(O(n^2)\) soweit zu
+minimieren, sodass die Simulation einer ''echten'' Galaxie in absehbarer Zeit
+durchführbar ist.\\\par Die Simulation von einem Zeitschritt bei 200 Millionen
+Sternen würde es erfordern \(4 \cdot 10^{16} \) Kräfteberechnungen
+durchzuführen. Im fall von 1.000.000 Berechnungen pro Sekunde wäre die
+Berechnung für einen Zeitschritt nach ca. \textbf{1267 Jahren} fertig. Durch
+viele Optimierungen schafft es meine Software die Anzahl an Kräften, die
+berechnet werden müssen auf (bestenfalls) \( 2.7 \cdot 10^{9} \) zu reduzieren
+und somit eine Laufzeit von ca. \textbf{45 minuten} zu erreichen.
