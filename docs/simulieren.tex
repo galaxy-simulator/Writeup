@@ -61,35 +61,34 @@ an Kräften, die berechnet werden müssen von \( O(n^2) \) auf \( O(n log(n)) \)
 zu reduzieren.
 
 \subsubsection{Generierung von Quadtrees und entsprechende Bäume}
-
 Um Sterne clustern zu können muss die Galaxie in der sich die Sterne befinden
 in Zellen unterteilt werden. Dazu wird ein Quadtree bzw. Octree (ein k-närer
-Baum mit 4 bzw. 8 Kindern) aufgebaut indem die Sterne eingefügt werden. Damit
+Baum mit 4 bzw. 8 Kindern) aufgebaut, indem die Sterne eingefügt werden. Damit
 die Stern-cluster gebildet werden können müssen die Sterne sich in den Blättern
-des Baumes befinden. Die Knoten des Baumes indem sich die Sterne befinden
+des Baumes befinden. Die Knoten des Baumes, indem sich die Sterne befinden
 dürfen somit keine weiteren Kinder besitzen.
 
 \par Ein Galaxie wie in Abbildung \ref{fig:cells} dargestellt wird demnach
 Stern für Stern in einen anfangs leeren Baum eingefügt. Die Größe der ersten
 Zelle die nach dem einfügen aller Sterne alle Sterne beinhaltet kann falls
 bekannt ist in was für einem Intervall die Koordinaten der Sterne sich befinden
-direkt genutzt werden um die Größe der Zelle zu definieren, andernfalls muss
-diese erst ermittelt werden indem die minimal und maximal Koordinaten in der
-liste an Sternen gesucht werden. Beim einfügen kann es jedoch wie in Abbildung
-\ref{fig:insertwithexisting} zu sehen zu Problemen kommen. Im falle das der
-Knoten indem ein Stern eingefügt werden soll bereits durch einen anderen Stern
+direkt genutzt werden, um die Größe der Zelle zu definieren, andernfalls muss
+diese erst ermittelt werden, indem die minimal und maximal Koordinaten in der
+liste an Sternen gesucht werden. Beim Einfügen kann es jedoch wie in Abbildung
+\ref{fig:insertwithexisting} zu sehen zu Problemen kommen. Im falle, dass der
+Knoten, indem ein Stern eingefügt werden soll bereits durch einen anderen Stern
 belegt ist müssen für den jeweiligen Knoten Kinder-Knoten erzeugt werden in den
 die beiden Sterne eingefügt werden müssen. Dies wird so lange fortgeführt bis
 sich alle Knoten in den Blättern des Baums befinden.
 
 \par Eine Zelle ist durch ihren Mittelpunkt und ihrer Breite definiert, daher
-verschiebt sich eine Zelle welche sich eine Ebene ''tiefer'' befinden um ein
-viertel ihre Breite und die Breite der neuen Zelle ist im Relation zu der
-Ursprünglichen Zelle gesehen halbiert.
+verschiebt sich eine Zelle, welche sich eine Ebene ''tiefer'' befinden um ein
+Viertel ihre Breite und die Breite der neuen Zelle ist im Relation zu der
+ursprünglichen Zelle gesehen halbiert.
 
 \par Nachdem alle Sterne in einen Baum eingefügt wurden und sich in den
 Blättern des Baumes befinden, wird der Baum rekursiv durchlaufen und es wird
-für jeden inneren Knoten (Knoten welche keine Blätter sind) die gesamt Masse
+für jeden inneren Knoten (Knoten, welche keine Blätter sind) die gesamt Masse
 ihrer Kinder berechnet und der Massen Mittelpunkt.
 
 \subsubsection{Funktion des Barnes-Hut Algorithmus}
