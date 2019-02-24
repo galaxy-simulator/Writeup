@@ -5,13 +5,14 @@
 Sternen, Planetensystemen, Gasnebeln und sonstigen Stellaren Objekten.''
 \footnote{\url{https://de.wikipedia.org/wiki/Galaxie}}
 
-\par Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden einfach
-ganz viele Objekte in einen Raum geworfen. Das reicht jedoch nicht um die Objekte als Galaxie definieren zu können, da sie nicht ''durch Gravitation
+\par Demnach ist es relativ Einfach eine Galaxie zu generieren: es werden
+einfach ganz viele Objekte in einen Raum geworfen. Das reicht jedoch nicht um
+die Objekte als Galaxie definieren zu können, da sie nicht ''durch Gravitation
 gebunden'' sind.
 
-\par Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie berechnet
-werden um damit die Position der jeweiligen Objekte nach einer bestimmten Zeit
-bestimmen zu können.
+\par Um dies zu tun muss die Kraft zwischen allen Objekten in der Galaxie
+berechnet werden um damit die Position der jeweiligen Objekte nach einer
+bestimmten Zeit bestimmen zu können.
 
 \par Tut man dies, indem man zwischen allen Objekten die Kräfte berechnet kommt
 es zu Problemen: die Anzahl der Kraft Berechnungen die durchgeführt werden
@@ -20,42 +21,44 @@ lassen sich mit der Formel \( n \cdot (n-1) \) berechnen. Für \( n=3 \) müssen
 demnach \( 6 \) Kräfte berechnet werden, für \( 100 \) Sterne dagegen \( 9900
 \) und für \( 1.000.000 \) Sterne \( \approx 9.99999 \cdot 10^{11} \). Die
 Anzahl der Kraft Berechnungen, die durchgeführt werden müssen beim Simulieren
-einer ''echten'' Galaxie mit \( &gt;200 \cdot 10^6 \) Sternen ist demnach so groß,
-dass die Anzahl der Kräfte die berechnet werden müssen minimiert werden müssen, um in einer sinnvollen Zeit an ein Ergebnis zu kommen.
+einer ''echten'' Galaxie mit \( > 200 \cdot 10^6 \) Sternen ist demnach so
+groß, dass die Anzahl der Kräfte die berechnet werden müssen minimiert werden
+müssen, um in einer sinnvollen Zeit an ein Ergebnis zu kommen.
 
 \par Dies reicht jedoch auch nicht, um eine ''stabile'' Galaxie zu generieren:
-berechnet man nur die Kräfte die auf ruhende Objekte in einem Reibungsfreiem Raum
-wirken, würden alle Objekte zum Massen Mittelpunkt gezogen werden und die Galaxie
-würde somit implodieren. Es ist also nötig auf die Sterne in der Galaxie
-Anfangs Kräfte zu wirken. Diese Kräfte sind durch die Rotation der Galaxie um
-den Massen Mittelpunkt der Galaxie definiert, man rotiert also die Galaxie und
-gleicht durch die Zentripetalkraft die Kraft die alle Sterne Richtung
-Massen Mittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu schnell,
-explodiert sie förmlich, da die Sterne nicht mehr zusammengehalten werden und
-die Fliehkraft sie einfach auseinanderzieht.
+berechnet man nur die Kräfte die auf ruhende Objekte in einem Reibungsfreiem
+Raum wirken, würden alle Objekte zum Massen Mittelpunkt gezogen werden und die
+Galaxie würde somit implodieren. Es ist also nötig auf die Sterne in der
+Galaxie Anfangs Kräfte zu wirken. Diese Kräfte sind durch die Rotation der
+Galaxie um den Massen Mittelpunkt der Galaxie definiert, man rotiert also die
+Galaxie und gleicht durch die Zentripetalkraft die Kraft die alle Sterne
+Richtung Massen Mittelpunkt zieht aus. Rotiert man die Galaxie jedoch zu
+schnell, explodiert sie förmlich, da die Sterne nicht mehr zusammengehalten
+werden und die Fliehkraft sie einfach auseinanderzieht.
 
 \subsection{Konzepte}
 
 \subsubsection{Zu lösende Probleme}
-Wie bereits beschrieben ist eines der Probleme das Auftritt die Anzahl der
-nötigen Kraft Berechnungen wodurch der Rechenaufwand Quadratisch in Relation zu
-der Anzahl der Sterne steigt und somit in \( O(n \cdot (n - 1)) \in O(n^2) \)
-liegt.
+Wie bereits in der Einleitung beschrieben, ist eines der Probleme das Auftritt
+die Anzahl der nötigen Kraft Berechnungen wodurch der Rechenaufwand quadratisch
+in Relation zu der Anzahl der Sterne steigt und somit in \( O(n \cdot (n - 1))
+\in O(n^2) \) liegt.
 
-\par Es kommt zu Problemen, wenn der mittlere Fehler, der bei der Berechnung
-der Kraft entsteht größer als die wirkende Kraft wird. Dies passiert unter
-anderem dann, wenn der Abstand zwischen den Sternen so groß wird, das die
-wirkende Kraft so gering ist das sie mithilfe von Computern nicht mehr sinnvoll
-dargestellt werden kann.  Statt nun mit Rundungsfehlern zu rechnen, können
-diese Sterne, die sehr weit entfernt vom Stern dessen Kräfte berechnet werden
-sollen, einfach nicht mehr beachtet werden, da sie nicht sinnvoll beitragen. Um
-diese Sterne jedoch nicht komplett aus der Berechnung auszunehmen, können
-kleine Cluster an Sternen welche weit genug vom Stern auf den die Kräfte
-berechnet werden sollen weg sind und klein genug sind zu einem Pseudo- Stern
-zusammengefasst werden welcher durch den Masse Mittelpunkt der Sterne die er
-repräsentiert definiert ist. Das Konzept wurde 1986 von Josch Barnes und Piet Hut
-veröffentlicht \cite{barneshut86} und erlaubt es die Anzahl an Kräften die berechnet werden müssen
-von \( O(n^2) \) auf \( O(n log(n)) \) zu reduzieren.
+\par Es kommt ebenfalls zu Problemen, wenn der mittlere Fehler, der bei der
+Berechnung der Kraft entsteht, größer als die wirkende Kraft wird. Dies
+passiert unter anderem dann, wenn der Abstand zwischen den Sternen so groß
+wird, dass die wirkende Kraft so gering ist das sie mithilfe von Computern
+nicht mehr sinnvoll dargestellt werden kann. Statt nun mit Rundungsfehlern zu
+rechnen, können diese Sterne, die sehr weit entfernt vom Stern dessen Kräfte
+berechnet werden sollen, einfach nicht mehr beachtet werden, da sie nicht
+sinnvoll beitragen. Um diese Sterne jedoch nicht komplett aus der Berechnung
+auszunehmen, können kleine Cluster an Sternen, welche weit genug vom Stern auf
+den die Kräfte berechnet werden sollen weg sind und klein genug sind zu einem
+Pseudo-Stern zusammengefasst werden, welcher durch den Masse Mittelpunkt der
+Sterne die er repräsentiert definiert ist. Das Konzept wurde 1986 von Josch
+Barnes und Piet Hut veröffentlicht \cite{barneshut86} und erlaubt es die Anzahl
+an Kräften, die berechnet werden müssen von \( O(n^2) \) auf \( O(n log(n)) \)
+zu reduzieren.
 
 \subsubsection{Generierung von Quadtrees und entsprechende Bäume}
 
